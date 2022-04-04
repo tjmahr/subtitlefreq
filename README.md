@@ -122,7 +122,7 @@ endeavor, but hey, at least anyone can add to it.
 ``` r
 data_patches <- targets::tar_read("data_patches")
 data_patches
-#> # A tibble: 48 × 2
+#> # A tibble: 49 × 2
 #>    old          new          
 #>    <chr>        <chr>        
 #>  1 vamplre      vampire      
@@ -135,7 +135,7 @@ data_patches
 #>  8 negociating  negotiating  
 #>  9 lt'd         it'd         
 #> 10 goin'out     goin' out    
-#> # … with 38 more rows
+#> # … with 39 more rows
 ```
 
 After applying the patches, we obtain the following counts:
@@ -143,7 +143,7 @@ After applying the patches, we obtain the following counts:
 ``` r
 data <- targets::tar_read("data_counts_patched")
 data
-#> # A tibble: 199,558 × 2
+#> # A tibble: 199,207 × 2
 #>    word        n
 #>    <chr>   <int>
 #>  1 you   1848683
@@ -156,14 +156,14 @@ data
 #>  8 of     579964
 #>  9 that   548765
 #> 10 in     492329
-#> # … with 199,548 more rows
+#> # … with 199,197 more rows
 ```
 
 We can rationalize our patching activity by looking at how many words
 are affected:
 
 ``` r
-data_pooled |> 
+data_pooled |>
   inner_join(data_patches, by = c("word" = "old")) |> 
   arrange(desc(n))
 #> # A tibble: 48 × 3
@@ -180,6 +180,25 @@ data_pooled |>
 #>  9 i'orange    10 l'orange 
 #> 10 i'i          9 i'll     
 #> # … with 38 more rows
+
+# some of the patches are regular expressions so this is the best way
+# to view them
+data_pooled |>
+  anti_join(data, by = "word")
+#> # A tibble: 509 × 2
+#>    word           n
+#>    <chr>      <int>
+#>  1 i'il        2070
+#>  2 speaklng     292
+#>  3 slnglng      187
+#>  4 playlng      186
+#>  5 rlnglng      166
+#>  6 laughlng     132
+#>  7 chatterlng   102
+#>  8 knocklng      76
+#>  9 cheerlng      74
+#> 10 screamlng     70
+#> # … with 499 more rows
 ```
 
 ## open questions (so far)

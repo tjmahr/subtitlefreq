@@ -101,9 +101,14 @@ We can rationalize our patching activity by looking at how many words are
 affected:
 
 ```{r}
-data_pooled |> 
+data_pooled |>
   inner_join(data_patches, by = c("word" = "old")) |> 
   arrange(desc(n))
+
+# some of the patches are regular expressions so this is the best way
+# to view them
+data_pooled |>
+  anti_join(data, by = "word")
 ```
 
 

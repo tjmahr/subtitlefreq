@@ -47,3 +47,4 @@ i'really,i'm really
 i'thankful,i'm thankful
 i'agent,i'agent
 i'air,l'air
+(.+)lng,\1ing
