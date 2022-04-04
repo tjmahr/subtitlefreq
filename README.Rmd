@@ -1,0 +1,125 @@
+---
+output: github_document
+---
+
+<!-- README.md is generated from README.Rmd. Please edit that file -->
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+library(tidyverse)
+
+```
+
+# subtitlefreq
+
+<!-- badges: start -->
+<!-- badges: end -->
+
+The goal of subtitlefreq is to provide alternative word frequency counts from
+the SUBTLEX-US corpus. My problem with the SUBTLEX-US corpus is that it
+separates "word+t" into "word" + "t", so that the contractions "isn't",
+"aren't", "don't", etc. count as two words. This project is a naive attempt 
+to rebuild some frequency counts from scratch.
+
+## obtaining the raw SUBTLEX-US data
+
+As a matter of caution, I won't provide the original subtitle corpus. But you
+can download it the same way that I did.
+
+- Go to the following URL: <http://www.lexique.org/?page_id=241> and download the
+corpus. 
+- Move `Subtlex US.rar` into `data` folder. 
+
+We can test our download by reading the embedded readme file from it.
+
+```{r}
+readme <- archive::archive_read(
+  "data/Subtlex US.rar", 
+  "Subtlex US/readme.txt"
+)
+
+writeLines(readLines(readme))
+```
+
+That last line is why I don't redistribute the corpus.
+
+## then run targets
+
+Assuming the data are downloaded and the appropriate packages are installed,
+then running `targets::tar_make()` should count the words in the corpus. 
+
+Data processing here works in three stages. First, there is a raw tibble of
+lines with row per subtitle line. The `batch` column is used for splitting the
+corpus into batches so that words can be counted in parallel.
+
+```{r}
+library(tidyverse)
+data_raw <- targets::tar_read(data_raw_corpus)
+data_raw
+```
+
+These lines are patched (to remove some garbage I discovered where markup was
+included in the dialogue), and then the words are in batch are counted.
+
+The counts from each batch are pooled together to give the following frequency
+counts:
+
+```{r}
+data_pooled <- targets::tar_read(data_counts_pooled)
+data_pooled |> print(n = 20)
+```
+
+You might notice that there are around 200,000 words here, instead of
+the 60,000-70,000 words you might see elsewhere. This is probably because we 
+did not lump any inflections together or anything.
+
+
+If I see ever any typos in the counts, I try to store a correction in the csv
+file `data/patches.csv`. This is probably a futile, never-ending endeavor, but 
+hey, at least anyone can add to it.
+
+```{r}
+data_patches <- targets::tar_read("data_patches")
+data_patches
+```
+
+After applying the patches, we obtain the following counts:
+
+```{r}
+data <- targets::tar_read("data_counts_patched")
+data
+```
+
+We can rationalize our patching activity by looking at how many words are 
+affected:
+
+```{r}
+data_pooled |> 
+  inner_join(data_patches, by = c("word" = "old")) |> 
+  arrange(desc(n))
+```
+
+
+## open questions (so far)
+
+I'm not sure what's going on with the encoding and whether that matters. If you
+find all lines with the string "Zellweger", you will find some `"Ren\xe9e
+Zellweger"` and some `"Renee Zellweger"` tokens.
+
+Numerals show up. I imagine that one would want to decompose them into subwords
+so that, e.g., "1993" is "nineteen", "ninety", and "three".
+
+
+```{r, echo = FALSE}
+# x <- data$word |> str_subset("^i'")
+# paste0(x,",",x)  |> writeLines()
+# 
+# 
+# data_raw$line |>
+#   stringr::str_subset(fixed("i'amour", ignore_case = TRUE))
+
+```
+
