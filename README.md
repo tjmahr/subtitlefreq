@@ -12,6 +12,10 @@ that it separates “word+t” into “word” + “t”, so that the contractio
 “isn’t”, “aren’t”, “don’t”, etc. count as two words. This project is a
 naive attempt to rebuild some frequency counts from scratch.
 
+⚠️ This is not a drop-in replacement for the SUBTLEX-US corpus. I just
+wanted to estimate how frequent “don’t” is so I could compute some
+neighborhood frequency measures.
+
 ## obtaining the raw SUBTLEX-US data
 
 As a matter of caution, I won’t provide the original subtitle corpus.
