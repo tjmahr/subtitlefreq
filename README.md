@@ -85,18 +85,18 @@ frequency counts:
 ``` r
 data_pooled <- targets::tar_read(data_counts_pooled)
 data_pooled |> print(n = 20)
-#> # A tibble: 199,599 × 2
+#> # A tibble: 199,598 × 2
 #>    word        n
 #>    <chr>   <int>
 #>  1 you   1848683
 #>  2 i     1478125
 #>  3 the   1472729
-#>  4 to    1142708
+#>  4 to    1142753
 #>  5 a     1024990
 #>  6 and    670364
 #>  7 it     666533
 #>  8 of     579964
-#>  9 that   548765
+#>  9 that   548786
 #> 10 in     492329
 #> 11 me     466534
 #> 12 is     454051
@@ -108,7 +108,7 @@ data_pooled |> print(n = 20)
 #> 18 i'm    327469
 #> 19 your   324879
 #> 20 we     320716
-#> # … with 199,579 more rows
+#> # … with 199,578 more rows
 ```
 
 You might notice that there are around 200,000 words here, instead of
@@ -122,7 +122,7 @@ endeavor, but hey, at least anyone can add to it.
 ``` r
 data_patches <- targets::tar_read("data_patches")
 data_patches
-#> # A tibble: 49 × 2
+#> # A tibble: 80 × 2
 #>    old          new          
 #>    <chr>        <chr>        
 #>  1 vamplre      vampire      
@@ -135,7 +135,7 @@ data_patches
 #>  8 negociating  negotiating  
 #>  9 lt'd         it'd         
 #> 10 goin'out     goin' out    
-#> # … with 39 more rows
+#> # … with 70 more rows
 ```
 
 After applying the patches, we obtain the following counts:
@@ -143,20 +143,20 @@ After applying the patches, we obtain the following counts:
 ``` r
 data <- targets::tar_read("data_counts_patched")
 data
-#> # A tibble: 199,207 × 2
+#> # A tibble: 199,107 × 2
 #>    word        n
 #>    <chr>   <int>
 #>  1 you   1848683
-#>  2 i     1478130
+#>  2 i     1478133
 #>  3 the   1472730
-#>  4 to    1142709
+#>  4 to    1142754
 #>  5 a     1024990
 #>  6 and    670364
 #>  7 it     666542
 #>  8 of     579964
-#>  9 that   548765
+#>  9 that   548786
 #> 10 in     492329
-#> # … with 199,197 more rows
+#> # … with 199,097 more rows
 ```
 
 We can rationalize our patching activity by looking at how many words
@@ -166,39 +166,50 @@ are affected:
 data_pooled |>
   inner_join(data_patches, by = c("word" = "old")) |> 
   arrange(desc(n))
-#> # A tibble: 48 × 3
+#> # A tibble: 75 × 3
 #>    word         n new      
 #>    <chr>    <int> <chr>    
 #>  1 i'il      2070 i'll     
-#>  2 i'amour     26 l'amour  
-#>  3 i'ts        26 it's     
-#>  4 i'mjust     15 i'm just 
-#>  5 lt'd        14 it'd     
-#>  6 i'lljust    13 i'll just
-#>  7 i'vejust    11 i've just
-#>  8 goin'out    10 goin' out
-#>  9 i'orange    10 l'orange 
-#> 10 i'i          9 i'll     
-#> # … with 38 more rows
+#>  2 lreland    238 ireland  
+#>  3 lrene      156 irene    
+#>  4 i'amour     26 l'amour  
+#>  5 i'ts        26 it's     
+#>  6 umplre      23 umpire   
+#>  7 slren       19 siren    
+#>  8 i'mjust     15 i'm just 
+#>  9 lt'd        14 it'd     
+#> 10 i'lljust    13 i'll just
+#> # … with 65 more rows
 
 # some of the patches are regular expressions so this is the best way
 # to view them
 data_pooled |>
-  anti_join(data, by = "word")
-#> # A tibble: 509 × 2
+  anti_join(data, by = "word") |> 
+  print(n = 20)
+#> # A tibble: 614 × 2
 #>    word           n
 #>    <chr>      <int>
 #>  1 i'il        2070
 #>  2 speaklng     292
-#>  3 slnglng      187
-#>  4 playlng      186
-#>  5 rlnglng      166
-#>  6 laughlng     132
-#>  7 chatterlng   102
-#>  8 knocklng      76
-#>  9 cheerlng      74
-#> 10 screamlng     70
-#> # … with 499 more rows
+#>  3 lreland      238
+#>  4 slnglng      187
+#>  5 playlng      186
+#>  6 rlnglng      166
+#>  7 lrene        156
+#>  8 laughlng     132
+#>  9 chatterlng   102
+#> 10 knocklng      76
+#> 11 cheerlng      74
+#> 12 screamlng     70
+#> 13 golng         67
+#> 14 rlght         59
+#> 15 dlrector      57
+#> 16 groanlng      54
+#> 17 slghlng       49
+#> 18 shoutlng      47
+#> 19 rapplng       41
+#> 20 chuckllng     38
+#> # … with 594 more rows
 ```
 
 ## open questions (so far)

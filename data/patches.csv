@@ -47,4 +47,35 @@ i'really,i'm really
 i'thankful,i'm thankful
 i'agent,i'agent
 i'air,l'air
+pigens,pigeons
+9A,nine a
+allready,already
+alreadyjust,alread yjust
+we'vealready,we've already
+copsalready,cops already
+levelrecalibrated,level recalibrated
+lrepeat,i repeat
+willremember,will remember
+lreland,ireland
+lreland's,ireland's
+emplre,empire
+entlre,entire
+acqulred,acquired
+requlred,required
+admlre,admire
+lnsplred,inspired
+quagmlre,quagmire
+slren,siren
+tlre,tire
+tlres,tires
+umplre,umpire
+lrene,irene
+clalre,claire
+magulre,maguire
+lrene's,irene
+alres,aires
+argentlna,argentina
 (.+)lng,\1ing
+(.*)(lgh)(?!amdi)(.*),\1igh\3
+(.*)(flre)(.*),\1fire\3
+(.*)(dlrect)(.*),\1direct\3

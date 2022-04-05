@@ -108,7 +108,9 @@ data_pooled |>
 # some of the patches are regular expressions so this is the best way
 # to view them
 data_pooled |>
-  anti_join(data, by = "word")
+  anti_join(data, by = "word") |> 
+  print(n = 20)
+
 ```
 
 
@@ -122,13 +124,11 @@ Numerals show up. I imagine that one would want to decompose them into subwords
 so that, e.g., "1993" is "nineteen", "ninety", and "three".
 
 
-```{r, echo = FALSE}
+```{r, echo = FALSE, eval = FALSE}
+# sample(data$word, 20)
+# data_raw <- targets::tar_read(data_raw_corpus_patched)
 # x <- data$word |> str_subset("^i'")
 # paste0(x,",",x)  |> writeLines()
-# 
-# 
-# data_raw$line |>
-#   stringr::str_subset(fixed("i'amour", ignore_case = TRUE))
 
 ```
 

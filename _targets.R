@@ -44,7 +44,9 @@ list(
         line = line |>
           stringr::str_remove_all(stringr::fixed("{i", ignore_case = TRUE)) |>
           stringr::str_remove_all(stringr::fixed("{/i", ignore_case = TRUE))
-      ),
+      ) |>
+      patch_false_spaces() |>
+      patch_text_contractions(),
     format = "fst_tbl"
   ),
 
