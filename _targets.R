@@ -85,7 +85,9 @@ list(
   tar_target(
     "data_counts_patched",
     patch_word_counts(data_counts_pooled, data_patches)
-  )
+  ),
+
+  tar_render(readme, "README.Rmd")
 )
 
 
