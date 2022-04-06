@@ -147,6 +147,7 @@ nlck,nick
 chrls,chris
 chrlstopher,christopher
 kevln,kevin
+playingfor,playing for
 (.+)lng,\1ing
 (.*)(lgh)(?!amdi)(.*),\1igh\3
 (.*)(flre)(.*),\1fire\3

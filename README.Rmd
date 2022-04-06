@@ -54,8 +54,18 @@ That last line is why I don't redistribute the corpus.
 
 ## then run targets
 
-Assuming the data are downloaded and the appropriate packages are installed,
-then running `targets::tar_make()` should count the words in the corpus. 
+Assuming the data are downloaded and the appropriate packages are
+installed, then running `targets::tar_make()` should count the words in
+the corpus. targets also [downloads](https://osf.io/djpqz/) and prepares the published version of
+the SUBTLEX-US frequency counts.
+
+```{r}
+data_subtlexus <- targets::tar_read(data_subtlexus)
+data_subtlexus
+```
+
+
+
 
 Data processing here works in three stages. First, there is a raw tibble of
 lines with row per subtitle line. The `batch` column is used for splitting the
@@ -133,4 +143,86 @@ so that, e.g., "1993" is "nineteen", "ninety", and "three".
 # paste0(x,",",x)  |> writeLines()
 
 ```
+
+## comparisons
+
+What text-cleaning did they originally do?
+
+> We rejected all files with more than 2.5% type errors according to the
+> spelling checker Aspell. In the end, 8,388 films and television
+> episodes were retained, with a total of 51.0 million words (16.1
+> million from television series, 14.3 million from films before 1990,
+> and 20.6 million from films after 1990).
+
+I seem to be missing around 3 million tokens.
+
+```{r}
+sum(data$n)
+51000000 - sum(data$n)
+```
+
+Or perhaps I am missing just 2 million words, based on the published
+frequencies:
+
+```{r}
+sum(data_subtlexus$FREQcount)
+sum(data_subtlexus$FREQcount) - sum(data$n)
+```
+
+Our raw text has lots of segmentation errors where multiple words are
+combined together. For example, here are types with "in'" followed by 2
+characters. If I split "tryin'to" into "tryin' to", I get 36 new words.
+Would systematically fixing lots of segmentation mistakes
+rediscover 2,000,000 missing words?
+
+```{r}
+data_pooled |> 
+  filter(str_detect(word, "in'..+$")) |> 
+  mutate(sum = sum(n))
+```
+
+
+> For instance, there are 18,081 occurrences of the word *play* in
+> SUBTLEXUS, 1,521 of the word *plays*, 2,870 of the word *played*,
+> and 7,515 of the word *playing*.
+
+```{r}
+data |> 
+  filter(word %in% c("playing", "plays", "play", "played")) 
+```
+
+This is a pretty good match, but we have a few more *playing* tokens
+because we patched `"lng"` words:
+
+```{r}
+# Unpatched counts
+data_pooled |> 
+  filter(str_detect(word, "^play(lng|ing)"))
+```
+
+The published counts fortunately do not have "lng" words.
+
+```{r}
+data_subtlexus |> 
+  filter(str_detect(Word, "lng"))
+```
+
+But the combination of treating contractions as separate words and the
+l-\>i conversion means that there are a few thousand spurious tokens of
+"il":
+
+```{r}
+# raw, unpatched
+data_pooled |> 
+  filter(str_detect(word, "^il$|'il")) |> 
+  mutate(sum(n))
+
+# published
+data_subtlexus |> 
+  filter(str_detect(Word, "^il$")) |> 
+  select(1:2)
+```
+
+
+
 

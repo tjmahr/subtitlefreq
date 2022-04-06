@@ -9,6 +9,22 @@ source("R/functions.R")
 num_batches <- 200
 
 list(
+  tar_file(
+    "file_subtlexus",
+    {
+      osfr::osf_retrieve_node("djpqz") |>
+        osfr::osf_ls_files(pattern = "SUBTLEX-US frequency") |>
+        osfr::osf_download(path = "data", conflicts = "skip") |>
+        dplyr::pull(local_path)
+    }
+  ),
+
+  tar_target(
+    data_subtlexus,
+    readxl::read_excel(file_subtlexus)
+  ),
+
+
   # original compressed file
   tar_file("rar_raw_corpus", "data/Subtlex US.rar"),
 
