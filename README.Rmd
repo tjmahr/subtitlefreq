@@ -226,3 +226,21 @@ data_subtlexus |>
 
 
 
+## let's try something
+
+I saw the textstem package as a solution for lemmatizing words. 
+
+```{r}
+data |> 
+  head(1000) |> 
+  mutate(
+    lemma = textstem::lemmatize_words(word)
+  ) |> 
+  group_by(lemma) |> 
+  mutate(lemma_n = sum(n)) |> 
+  arrange(desc(lemma_n)) |> 
+  print(n = 20)
+```
+
+Hmm, I wish I could skip irregular forms from being lemmatized. I am
+also not a fan of "being" is reduced down to "be".

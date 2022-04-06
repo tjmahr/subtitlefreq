@@ -144,7 +144,7 @@ endeavor, but hey, at least anyone can add to it.
 ``` r
 data_patches <- targets::tar_read("data_patches")
 data_patches
-#> # A tibble: 153 × 2
+#> # A tibble: 163 × 2
 #>    old          new          
 #>    <chr>        <chr>        
 #>  1 vamplre      vampire      
@@ -157,7 +157,7 @@ data_patches
 #>  8 negociating  negotiating  
 #>  9 lt'd         it'd         
 #> 10 goin'out     goin' out    
-#> # … with 143 more rows
+#> # … with 153 more rows
 ```
 
 After applying the patches, we obtain the following counts:
@@ -165,20 +165,20 @@ After applying the patches, we obtain the following counts:
 ``` r
 data <- targets::tar_read("data_counts_patched")
 data
-#> # A tibble: 199,034 × 2
+#> # A tibble: 198,216 × 2
 #>    word        n
 #>    <chr>   <int>
-#>  1 you   1848683
-#>  2 i     1478133
-#>  3 the   1472730
-#>  4 to    1142754
-#>  5 a     1024990
-#>  6 and    670364
-#>  7 it     666542
-#>  8 of     579964
-#>  9 that   548786
-#> 10 in     492329
-#> # … with 199,024 more rows
+#>  1 you   1848716
+#>  2 i     1478135
+#>  3 the   1472757
+#>  4 to    1142847
+#>  5 a     1025029
+#>  6 and    670372
+#>  7 it     666562
+#>  8 of     579970
+#>  9 that   548798
+#> 10 in     492385
+#> # … with 198,206 more rows
 ```
 
 We can rationalize our patching activity by looking at how many words
@@ -188,7 +188,7 @@ are affected:
 data_pooled |>
   inner_join(data_patches, by = c("word" = "old")) |> 
   arrange(desc(n))
-#> # A tibble: 148 × 3
+#> # A tibble: 155 × 3
 #>    word          n new      
 #>    <chr>     <int> <chr>    
 #>  1 i'il       2070 i'll     
@@ -201,37 +201,37 @@ data_pooled |>
 #>  8 lt's        254 it's     
 #>  9 lreland     238 ireland  
 #> 10 lron        223 iron     
-#> # … with 138 more rows
+#> # … with 145 more rows
 
 # some of the patches are regular expressions so this is the best way
 # to view them
 data_pooled |>
   anti_join(data, by = "word") |> 
   print(n = 20)
-#> # A tibble: 687 × 2
+#> # A tibble: 1,533 × 2
 #>    word          n
 #>    <chr>     <int>
 #>  1 i'il       2070
 #>  2 lsn't       660
 #>  3 lnspector   639
-#>  4 lnn         346
-#>  5 lce         329
-#>  6 martln      316
-#>  7 speaklng    292
-#>  8 mlke        284
-#>  9 lt's        254
-#> 10 lreland     238
-#> 11 lron        223
-#> 12 offlcer     196
-#> 13 slnglng     187
-#> 14 playlng     186
-#> 15 lra         171
-#> 16 rlnglng     166
-#> 17 thls        166
-#> 18 lrene       156
-#> 19 rlchard     145
-#> 20 radlo       134
-#> # … with 667 more rows
+#>  4 we'il       544
+#>  5 you'il      490
+#>  6 lnn         346
+#>  7 lce         329
+#>  8 martln      316
+#>  9 speaklng    292
+#> 10 mlke        284
+#> 11 lt's        254
+#> 12 lreland     238
+#> 13 lron        223
+#> 14 offlcer     196
+#> 15 slnglng     187
+#> 16 playlng     186
+#> 17 lra         171
+#> 18 rlnglng     166
+#> 19 thls        166
+#> 20 he'il       158
+#> # … with 1,513 more rows
 ```
 
 ## open questions (so far)
@@ -257,9 +257,9 @@ I seem to be missing around 3 million tokens.
 
 ``` r
 sum(data$n)
-#> [1] 47754830
+#> [1] 47756093
 51000000 - sum(data$n)
-#> [1] 3245170
+#> [1] 3243907
 ```
 
 Or perhaps I am missing just 2 million words, based on the published
@@ -269,7 +269,7 @@ frequencies:
 sum(data_subtlexus$FREQcount)
 #> [1] 49719560
 sum(data_subtlexus$FREQcount) - sum(data$n)
-#> [1] 1964730
+#> [1] 1963467
 ```
 
 Our raw text has lots of segmentation errors where multiple words are
@@ -308,7 +308,7 @@ data |>
 #> # A tibble: 4 × 2
 #>   word        n
 #>   <chr>   <int>
-#> 1 play    17981
+#> 1 play    17982
 #> 2 playing  7694
 #> 3 played   2795
 #> 4 plays    1492
@@ -376,3 +376,47 @@ data_subtlexus |>
 #>   <chr>     <dbl>
 #> 1 il         4139
 ```
+
+## let’s try something
+
+I saw the textstem package as a solution for lemmatizing words.
+
+``` r
+data |> 
+  head(1000) |> 
+  mutate(
+    lemma = textstem::lemmatize_words(word)
+  ) |> 
+  group_by(lemma) |> 
+  mutate(lemma_n = sum(n)) |> 
+  arrange(desc(lemma_n)) |> 
+  print(n = 20)
+#> # A tibble: 1,000 × 4
+#> # Groups:   lemma [822]
+#>    word        n lemma lemma_n
+#>    <chr>   <int> <chr>   <int>
+#>  1 you   1848716 you   1856429
+#>  2 ya       7713 you   1856429
+#>  3 is     454055 be    1546471
+#>  4 be     289167 be    1546471
+#>  5 was    284063 be    1546471
+#>  6 are    262891 be    1546471
+#>  7 been    87376 be    1546471
+#>  8 were    83491 be    1546471
+#>  9 am      49947 be    1546471
+#> 10 being   24580 be    1546471
+#> 11 m       10901 be    1546471
+#> 12 i     1478135 i     1478135
+#> 13 the   1472757 the   1472757
+#> 14 to    1142847 to    1142847
+#> 15 a     1025029 a     1118800
+#> 16 an      93771 a     1118800
+#> 17 and    670372 and    670372
+#> 18 it     666562 it     666562
+#> 19 that   548798 that   586708
+#> 20 those   37910 that   586708
+#> # … with 980 more rows
+```
+
+Hmm, I wish I could skip irregular forms from being lemmatized. I am
+also not a fan of “being” is reduced down to “be”.

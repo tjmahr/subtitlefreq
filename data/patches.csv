@@ -148,6 +148,16 @@ chrls,chris
 chrlstopher,christopher
 kevln,kevin
 playingfor,playing for
+l'il,lil
+doin'somethin'right,doin' somethin' right
+doin'ourjob,doin' our job
+doin'nothin'crazy,doin' nothin' crazy
+goin'toail,goin' to jail
+helpin'lookin'for,helpin' lookin' for
+spinnin'S.U.,spinnin' s u
+werejerkin'off,were jerkin' off
+(..+in)+'(?!(s$|ll$|t$|d$|est$|st$))(.+),\1' \3
+^([a-pr-z])(.+)'il$,\1\2'll
 (.+)lng,\1ing
 (.*)(lgh)(?!amdi)(.*),\1igh\3
 (.*)(flre)(.*),\1fire\3
