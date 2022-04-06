@@ -1,5 +1,8 @@
 ---
-output: github_document
+output: 
+  github_document:
+    keep_html: false
+    html_preview: false
 ---
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
@@ -10,7 +13,6 @@ knitr::opts_chunk$set(
   comment = "#>"
 )
 library(tidyverse)
-
 ```
 
 # subtitlefreq
