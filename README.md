@@ -144,7 +144,7 @@ endeavor, but hey, at least anyone can add to it.
 ``` r
 data_patches <- targets::tar_read("data_patches")
 data_patches
-#> # A tibble: 157 × 2
+#> # A tibble: 598 × 2
 #>    old          new          
 #>    <chr>        <chr>        
 #>  1 vamplre      vampire      
@@ -157,7 +157,7 @@ data_patches
 #>  8 negociating  negotiating  
 #>  9 lt'd         it'd         
 #> 10 goin'out     goin' out    
-#> # … with 147 more rows
+#> # … with 588 more rows
 ```
 
 These individual patches are followed by regular-expression-based
@@ -183,20 +183,20 @@ After applying the patches, we obtain the following counts:
 ``` r
 data <- targets::tar_read("data_counts_patched")
 data
-#> # A tibble: 196,152 × 2
+#> # A tibble: 195,730 × 2
 #>    word        n
 #>    <chr>   <int>
-#>  1 you   1848716
-#>  2 i     1478135
-#>  3 the   1472757
-#>  4 to    1142847
-#>  5 a     1025029
-#>  6 and    670372
-#>  7 it     666669
-#>  8 of     579970
-#>  9 that   548798
-#> 10 in     492768
-#> # … with 196,142 more rows
+#>  1 you   1849097
+#>  2 i     1478143
+#>  3 the   1472817
+#>  4 to    1142851
+#>  5 a     1025032
+#>  6 and    670400
+#>  7 it     666678
+#>  8 of     580112
+#>  9 that   548820
+#> 10 in     492769
+#> # … with 195,720 more rows
 ```
 
 We can rationalize our patching activity by looking at how many words
@@ -206,7 +206,7 @@ are affected:
 data_pooled |>
   anti_join(data, by = "word") |> 
   print(n = 20)
-#> # A tibble: 1,100 × 2
+#> # A tibble: 1,526 × 2
 #>    word             n
 #>    <chr>        <int>
 #>  1 i'il          2070
@@ -219,17 +219,17 @@ data_pooled |>
 #>  8 lt's           244
 #>  9 lreland        238
 #> 10 lron           223
-#> 11 he'il          158
-#> 12 lrene          156
-#> 13 lra            126
-#> 14 lsaac          125
-#> 15 lvan           124
-#> 16 lndependence   122
-#> 17 l'm            117
-#> 18 it'il          113
-#> 19 they'il         96
-#> 20 lnto            93
-#> # … with 1,080 more rows
+#> 11 lmperial       188
+#> 12 ifyou          167
+#> 13 he'il          158
+#> 14 lrene          156
+#> 15 lra            126
+#> 16 lsaac          125
+#> 17 lvan           124
+#> 18 lndependence   122
+#> 19 l'm            117
+#> 20 it'il          113
+#> # … with 1,506 more rows
 ```
 
 ## open questions (so far)
@@ -255,9 +255,9 @@ I seem to be missing around 3 million tokens.
 
 ``` r
 sum(data$n)
-#> [1] 47756093
+#> [1] 47757827
 51000000 - sum(data$n)
-#> [1] 3243907
+#> [1] 3242173
 ```
 
 Or perhaps I am missing just 2 million words, based on the published
@@ -267,7 +267,7 @@ frequencies:
 sum(data_subtlexus$FREQcount)
 #> [1] 49719560
 sum(data_subtlexus$FREQcount) - sum(data$n)
-#> [1] 1963467
+#> [1] 1961733
 ```
 
 Our raw text has lots of segmentation errors where multiple words are
@@ -410,26 +410,26 @@ data |>
 #> # Groups:   lemma [822]
 #>    word        n lemma lemma_n
 #>    <chr>   <int> <chr>   <int>
-#>  1 you   1848716 you   1856429
-#>  2 ya       7713 you   1856429
-#>  3 is     454165 be    1546581
-#>  4 be     289167 be    1546581
-#>  5 was    284063 be    1546581
-#>  6 are    262891 be    1546581
-#>  7 been    87376 be    1546581
-#>  8 were    83491 be    1546581
-#>  9 am      49947 be    1546581
-#> 10 being   24580 be    1546581
-#> 11 m       10901 be    1546581
-#> 12 i     1478135 i     1478135
-#> 13 the   1472757 the   1472757
-#> 14 to    1142847 to    1142847
-#> 15 a     1025029 a     1118800
-#> 16 an      93771 a     1118800
-#> 17 and    670372 and    670372
-#> 18 it     666669 it     666669
-#> 19 that   548798 that   586708
-#> 20 those   37910 that   586708
+#>  1 you   1849097 you   1856811
+#>  2 ya       7714 you   1856811
+#>  3 is     454166 be    1546665
+#>  4 be     289169 be    1546665
+#>  5 was    284105 be    1546665
+#>  6 are    262903 be    1546665
+#>  7 been    87376 be    1546665
+#>  8 were    83517 be    1546665
+#>  9 am      49947 be    1546665
+#> 10 being   24581 be    1546665
+#> 11 m       10901 be    1546665
+#> 12 i     1478143 i     1478143
+#> 13 the   1472817 the   1472817
+#> 14 to    1142851 to    1142851
+#> 15 a     1025032 a     1118804
+#> 16 an      93772 a     1118804
+#> 17 and    670400 and    670400
+#> 18 it     666678 it     666678
+#> 19 that   548820 that   586731
+#> 20 those   37911 that   586731
 #> # … with 980 more rows
 ```
 
