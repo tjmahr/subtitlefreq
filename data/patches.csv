@@ -156,9 +156,3 @@ goin'toail,goin' to jail
 helpin'lookin'for,helpin' lookin' for
 spinnin'S.U.,spinnin' s u
 werejerkin'off,were jerkin' off
-(..+in)+'(?!(s$|ll$|t$|d$|est$|st$))(.+),\1' \3
-^([a-pr-z])(.+)'il$,\1\2'll
-(.+)lng,\1ing
-(.*)(lgh)(?!amdi)(.*),\1igh\3
-(.*)(flre)(.*),\1fire\3
-(.*)(dlrect)(.*),\1direct\3

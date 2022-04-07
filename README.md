@@ -81,19 +81,19 @@ parallel.
 library(tidyverse)
 data_raw <- targets::tar_read(data_raw_corpus)
 data_raw
-#> # A tibble: 6,043,188 × 2
-#>    line                                                                    batch
-#>    <chr>                                                                   <int>
-#>  1 "***Tony? Hey, Tony, where you going? "                                     1
-#>  2 "That place goes on the market today. "                                     1
-#>  3 "I couldn't call myself his friend if I weren't willing to do the same…     1
-#>  4 "You don't want to run a wedding magazine for a company that is fallin…     1
-#>  5 "Well, I guess the only thing left for us to do  is to wire Marcie and…     1
-#>  6 "I, like, dumped her, like, 20 years ago.  So? So, I don't think I eve…     1
-#>  7 "Otis Day &amp; The Knights - Shout!  guys escaping from Sandi's house"     1
-#>  8 "I'm gonna call it Serendipity.  What does that mean? I don't know.  A…     1
-#>  9 "What on earth is wrong with you, besides the obvious lack of fashion …     1
-#> 10 "Where would you go ? "                                                     1
+#> # A tibble: 6,043,188 × 3
+#>    index batch line                                                             
+#>    <int> <int> <chr>                                                            
+#>  1     1     1 "***Tony? Hey, Tony, where you going? "                          
+#>  2     2     1 "That place goes on the market today. "                          
+#>  3     3     1 "I couldn't call myself his friend if I weren't willing to do th…
+#>  4     4     1 "You don't want to run a wedding magazine for a company that is …
+#>  5     5     1 "Well, I guess the only thing left for us to do  is to wire Marc…
+#>  6     6     1 "I, like, dumped her, like, 20 years ago.  So? So, I don't think…
+#>  7     7     1 "Otis Day &amp; The Knights - Shout!  guys escaping from Sandi's…
+#>  8     8     1 "I'm gonna call it Serendipity.  What does that mean? I don't kn…
+#>  9     9     1 "What on earth is wrong with you, besides the obvious lack of fa…
+#> 10    10     1 "Where would you go ? "                                          
 #> # … with 6,043,178 more rows
 ```
 
@@ -107,7 +107,7 @@ frequency counts:
 ``` r
 data_pooled <- targets::tar_read(data_counts_pooled)
 data_pooled |> print(n = 20)
-#> # A tibble: 199,598 × 2
+#> # A tibble: 197,187 × 2
 #>    word        n
 #>    <chr>   <int>
 #>  1 you   1848683
@@ -116,21 +116,21 @@ data_pooled |> print(n = 20)
 #>  4 to    1142753
 #>  5 a     1024990
 #>  6 and    670364
-#>  7 it     666533
+#>  7 it     666640
 #>  8 of     579964
 #>  9 that   548786
-#> 10 in     492329
+#> 10 in     492712
 #> 11 me     466534
-#> 12 is     454051
+#> 12 is     454161
 #> 13 what   426374
-#> 14 this   402332
+#> 14 this   402461
 #> 15 on     351029
 #> 16 for    347074
 #> 17 my     340061
 #> 18 i'm    327469
 #> 19 your   324879
 #> 20 we     320716
-#> # … with 199,578 more rows
+#> # … with 197,167 more rows
 ```
 
 You might notice that there are around 200,000 words here, instead of
@@ -144,7 +144,7 @@ endeavor, but hey, at least anyone can add to it.
 ``` r
 data_patches <- targets::tar_read("data_patches")
 data_patches
-#> # A tibble: 163 × 2
+#> # A tibble: 157 × 2
 #>    old          new          
 #>    <chr>        <chr>        
 #>  1 vamplre      vampire      
@@ -157,7 +157,25 @@ data_patches
 #>  8 negociating  negotiating  
 #>  9 lt'd         it'd         
 #> 10 goin'out     goin' out    
-#> # … with 153 more rows
+#> # … with 147 more rows
+```
+
+These individual patches are followed by regular-expression-based
+patches. These are stored in a `data/patches-regex.csv` so that they can
+have a `comment` column that describes their behavior.
+
+``` r
+data_patches_regex <- targets::tar_read("data_patches_regex")
+data_patches_regex
+#> # A tibble: 6 × 3
+#>   old                                      new            comment               
+#>   <chr>                                    <chr>          <chr>                 
+#> 1 (..+in)+'(?!(s$|ll$|t$|d$|est$|st$))(.+) "\\1' \\3"     "<..in'word> into <..…
+#> 2 ^([a-pr-z])(.+)'il$                      "\\1\\2'll"    "<-'il> to <-'ll> unl…
+#> 3 (.+)lng                                  "\\1ing"       "<-lng> to <-ing>"    
+#> 4 (.*)(lgh)(?!amdi)(.*)                    "\\1igh\\3"    "<lgh> to <igh> excep…
+#> 5 (.*)(flre)(.*)                           "\\1fire\\3"   "<flre> to <fire>"    
+#> 6 (.*)(dlrect)(.*)                         "\\1direct\\3" "<dlrect> to <direct>"
 ```
 
 After applying the patches, we obtain the following counts:
@@ -165,7 +183,7 @@ After applying the patches, we obtain the following counts:
 ``` r
 data <- targets::tar_read("data_counts_patched")
 data
-#> # A tibble: 198,216 × 2
+#> # A tibble: 196,152 × 2
 #>    word        n
 #>    <chr>   <int>
 #>  1 you   1848716
@@ -174,11 +192,11 @@ data
 #>  4 to    1142847
 #>  5 a     1025029
 #>  6 and    670372
-#>  7 it     666562
+#>  7 it     666669
 #>  8 of     579970
 #>  9 that   548798
-#> 10 in     492385
-#> # … with 198,206 more rows
+#> 10 in     492768
+#> # … with 196,142 more rows
 ```
 
 We can rationalize our patching activity by looking at how many words
@@ -186,52 +204,32 @@ are affected:
 
 ``` r
 data_pooled |>
-  inner_join(data_patches, by = c("word" = "old")) |> 
-  arrange(desc(n))
-#> # A tibble: 155 × 3
-#>    word          n new      
-#>    <chr>     <int> <chr>    
-#>  1 i'il       2070 i'll     
-#>  2 lsn't       660 isn't    
-#>  3 lnspector   639 inspector
-#>  4 lnn         346 inn      
-#>  5 lce         329 ice      
-#>  6 martln      316 martin   
-#>  7 mlke        284 mike     
-#>  8 lt's        254 it's     
-#>  9 lreland     238 ireland  
-#> 10 lron        223 iron     
-#> # … with 145 more rows
-
-# some of the patches are regular expressions so this is the best way
-# to view them
-data_pooled |>
   anti_join(data, by = "word") |> 
   print(n = 20)
-#> # A tibble: 1,533 × 2
-#>    word          n
-#>    <chr>     <int>
-#>  1 i'il       2070
-#>  2 lsn't       660
-#>  3 lnspector   639
-#>  4 we'il       544
-#>  5 you'il      490
-#>  6 lnn         346
-#>  7 lce         329
-#>  8 martln      316
-#>  9 speaklng    292
-#> 10 mlke        284
-#> 11 lt's        254
-#> 12 lreland     238
-#> 13 lron        223
-#> 14 offlcer     196
-#> 15 slnglng     187
-#> 16 playlng     186
-#> 17 lra         171
-#> 18 rlnglng     166
-#> 19 thls        166
-#> 20 he'il       158
-#> # … with 1,513 more rows
+#> # A tibble: 1,100 × 2
+#>    word             n
+#>    <chr>        <int>
+#>  1 i'il          2070
+#>  2 lsn't          657
+#>  3 lnspector      638
+#>  4 we'il          544
+#>  5 you'il         490
+#>  6 lnn            346
+#>  7 lce            319
+#>  8 lt's           244
+#>  9 lreland        238
+#> 10 lron           223
+#> 11 he'il          158
+#> 12 lrene          156
+#> 13 lra            126
+#> 14 lsaac          125
+#> 15 lvan           124
+#> 16 lndependence   122
+#> 17 l'm            117
+#> 18 it'il          113
+#> 19 they'il         96
+#> 20 lnto            93
+#> # … with 1,080 more rows
 ```
 
 ## open questions (so far)
@@ -315,20 +313,7 @@ data |>
 ```
 
 This is a pretty good match, but we have a few more *playing* tokens
-because we patched `"lng"` words:
-
-``` r
-# Unpatched counts
-data_pooled |> 
-  filter(str_detect(word, "^play(lng|ing)"))
-#> # A tibble: 4 × 2
-#>   word           n
-#>   <chr>      <int>
-#> 1 playing     7507
-#> 2 playlng      186
-#> 3 playing's      4
-#> 4 playingfor     1
-```
+because we patched `"lng"` words.
 
 The published counts fortunately do not have “lng” words.
 
@@ -352,20 +337,20 @@ l-\>i conversion means that there are a few thousand spurious tokens of
 data_pooled |> 
   filter(str_detect(word, "^il$|'il")) |> 
   mutate(sum(n))
-#> # A tibble: 36 × 3
+#> # A tibble: 35 × 3
 #>    word        n `sum(n)`
 #>    <chr>   <int>    <int>
-#>  1 i'il     2070     4145
-#>  2 we'il     544     4145
-#>  3 you'il    490     4145
-#>  4 il        433     4145
-#>  5 he'il     158     4145
-#>  6 it'il     113     4145
-#>  7 they'il    96     4145
-#>  8 she'il     56     4145
-#>  9 s'il       52     4145
-#> 10 that'il    30     4145
-#> # … with 26 more rows
+#>  1 i'il     2070     4144
+#>  2 we'il     544     4144
+#>  3 you'il    490     4144
+#>  4 il        433     4144
+#>  5 he'il     158     4144
+#>  6 it'il     113     4144
+#>  7 they'il    96     4144
+#>  8 she'il     56     4144
+#>  9 s'il       52     4144
+#> 10 that'il    30     4144
+#> # … with 25 more rows
 
 # published
 data_subtlexus |> 
@@ -375,6 +360,36 @@ data_subtlexus |>
 #>   Word  FREQcount
 #>   <chr>     <dbl>
 #> 1 il         4139
+```
+
+Because of OCR converting “I” to “l”, I patched the corpus to replace
+“l” with “I” when it was inside of an all-caps word. We can see the big
+differences in the counts between my counts and the published ones for
+certain initialisms.
+
+``` r
+# raw, unpatched
+data_pooled |> 
+  filter(word %in% c("fbi", "irs", "cia")) |> 
+  arrange(word)
+#> # A tibble: 3 × 2
+#>   word      n
+#>   <chr> <int>
+#> 1 cia    1084
+#> 2 fbi     907
+#> 3 irs     121
+
+# published
+data_subtlexus |> 
+  filter(tolower(Word) %in% c("fbi", "irs", "cia")) |> 
+  arrange(Word) |> 
+  select(1:2)
+#> # A tibble: 3 × 2
+#>   Word  FREQcount
+#>   <chr>     <dbl>
+#> 1 cia           7
+#> 2 fbi          95
+#> 3 irs          18
 ```
 
 ## let’s try something
@@ -397,22 +412,22 @@ data |>
 #>    <chr>   <int> <chr>   <int>
 #>  1 you   1848716 you   1856429
 #>  2 ya       7713 you   1856429
-#>  3 is     454055 be    1546471
-#>  4 be     289167 be    1546471
-#>  5 was    284063 be    1546471
-#>  6 are    262891 be    1546471
-#>  7 been    87376 be    1546471
-#>  8 were    83491 be    1546471
-#>  9 am      49947 be    1546471
-#> 10 being   24580 be    1546471
-#> 11 m       10901 be    1546471
+#>  3 is     454165 be    1546581
+#>  4 be     289167 be    1546581
+#>  5 was    284063 be    1546581
+#>  6 are    262891 be    1546581
+#>  7 been    87376 be    1546581
+#>  8 were    83491 be    1546581
+#>  9 am      49947 be    1546581
+#> 10 being   24580 be    1546581
+#> 11 m       10901 be    1546581
 #> 12 i     1478135 i     1478135
 #> 13 the   1472757 the   1472757
 #> 14 to    1142847 to    1142847
 #> 15 a     1025029 a     1118800
 #> 16 an      93771 a     1118800
 #> 17 and    670372 and    670372
-#> 18 it     666562 it     666562
+#> 18 it     666669 it     666669
 #> 19 that   548798 that   586708
 #> 20 those   37910 that   586708
 #> # … with 980 more rows

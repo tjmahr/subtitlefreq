@@ -48,8 +48,10 @@ list(
     "data_raw_corpus",
     tibble::tibble(
       line = readr::read_lines(txt_raw_corpus),
+      index = seq_along(line),
       batch = line |> purrr::rep_along(seq_len(num_batches)) |> sort()
-    ),
+    ) |>
+      dplyr::relocate(index, batch, line),
     format = "fst_tbl"
   ),
 
@@ -62,7 +64,8 @@ list(
           stringr::str_remove_all(stringr::fixed("{/i", ignore_case = TRUE))
       ) |>
       patch_false_spaces() |>
-      patch_text_contractions(),
+      patch_text_contractions() |>
+      patch_easy_ocr_errors(),
     format = "fst_tbl"
   ),
 
@@ -72,6 +75,7 @@ list(
   tar_target(
     "data_counts_by_batch",
     data_raw_corpus_patched |>
+      dplyr::select(-index) |>
       tidyr::nest(data = line) |>
       dplyr::mutate(
         # count words in parallel
@@ -97,10 +101,19 @@ list(
     read = readr::read_csv(!! .x, col_types = "cc")
   ),
 
+  # read in a file of patches for typos in the counts
+  tar_file_read(
+    data_patches_regex,
+    command = "data/patches-regex.csv",
+    read = readr::read_csv(!! .x, col_types = "cc")
+  ),
+
   # apply patches
   tar_target(
     "data_counts_patched",
-    patch_word_counts(data_counts_pooled, data_patches)
+    data_counts_pooled |>
+      patch_word_counts(data_patches) |>
+      patch_word_counts(data_patches_regex)
   ),
 
   tar_render(readme, "README.Rmd")

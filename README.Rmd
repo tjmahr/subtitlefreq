@@ -102,6 +102,15 @@ data_patches <- targets::tar_read("data_patches")
 data_patches
 ```
 
+These individual patches are followed by regular-expression-based
+patches. These are stored in a `data/patches-regex.csv` so that they can
+have a `comment` column that describes their behavior.
+
+```{r}
+data_patches_regex <- targets::tar_read("data_patches_regex")
+data_patches_regex
+```
+
 After applying the patches, we obtain the following counts:
 
 ```{r}
@@ -114,15 +123,8 @@ affected:
 
 ```{r}
 data_pooled |>
-  inner_join(data_patches, by = c("word" = "old")) |> 
-  arrange(desc(n))
-
-# some of the patches are regular expressions so this is the best way
-# to view them
-data_pooled |>
   anti_join(data, by = "word") |> 
   print(n = 20)
-
 ```
 
 
@@ -192,13 +194,7 @@ data |>
 ```
 
 This is a pretty good match, but we have a few more *playing* tokens
-because we patched `"lng"` words:
-
-```{r}
-# Unpatched counts
-data_pooled |> 
-  filter(str_detect(word, "^play(lng|ing)"))
-```
+because we patched `"lng"` words.
 
 The published counts fortunately do not have "lng" words.
 
@@ -223,6 +219,23 @@ data_subtlexus |>
   select(1:2)
 ```
 
+Because of OCR converting "I" to "l", I patched the corpus to replace "l"
+with "I" when it was inside of an all-caps word. We can see the big
+differences in the counts between my counts and the published ones for
+certain initialisms.
+
+```{r}
+# raw, unpatched
+data_pooled |> 
+  filter(word %in% c("fbi", "irs", "cia")) |> 
+  arrange(word)
+
+# published
+data_subtlexus |> 
+  filter(tolower(Word) %in% c("fbi", "irs", "cia")) |> 
+  arrange(Word) |> 
+  select(1:2)
+```
 
 
 
