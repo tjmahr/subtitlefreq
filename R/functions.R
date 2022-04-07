@@ -28,19 +28,31 @@ patch_word_counts <- function(data_counts, data_patches) {
 }
 
 patch_text_contractions <- function(data) {
-  pat_nt <- regex("(didn|wouldn|wasn|should|isn|aren) 't", ignore_case = TRUE)
+  pat_nt <- regex("(doesn|didn|wouldn|wasn|should|isn|aren)( 't| ' t | t | ' t$)", ignore_case = TRUE)
   data |>
     # filter(str_detect(line, regex("(?<=\\W)don 't", ignore_case = TRUE)))
     mutate(
       line = line |>
         str_replace_all(pat_nt, " \\1't ") |>
         str_replace_all(
-          pattern = regex("(?<=\\W)don 't", ignore_case = TRUE),
+          pattern = regex("(?<=\\W)don( 't| ' t | t | ' t$)", ignore_case = TRUE),
           replacement = " don't "
         ) |>
         str_replace_all(
-          pattern = regex("(?<=\\W)can 't", ignore_case = TRUE),
+          pattern = regex("(?<=\\W)won( 't| ' t | t | ' t$)", ignore_case = TRUE),
+          replacement = " won't "
+        ) |>
+        str_replace_all(
+          pattern = regex("(?<=\\W)can( 't| ' t | t | ' t$)", ignore_case = TRUE),
           replacement = " can't "
+        ) |>
+        str_replace_all(
+          pattern = regex("(?<=\\W)I( 'd| ' d | ' d$)", ignore_case = TRUE),
+          replacement = " I'd "
+        ) |>
+        str_replace_all(
+          pattern = regex("([A-z]+)( ' s | ' s$)", ignore_case = TRUE),
+          replacement = " \\1's "
         )
     )
 }

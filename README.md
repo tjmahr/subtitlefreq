@@ -107,22 +107,22 @@ frequency counts:
 ``` r
 data_pooled <- targets::tar_read(data_counts_pooled)
 data_pooled |> print(n = 20)
-#> # A tibble: 197,187 × 2
+#> # A tibble: 197,203 × 2
 #>    word        n
 #>    <chr>   <int>
 #>  1 you   1848683
-#>  2 i     1478125
+#>  2 i     1478061
 #>  3 the   1472729
 #>  4 to    1142753
 #>  5 a     1024990
 #>  6 and    670364
-#>  7 it     666640
+#>  7 it     666204
 #>  8 of     579964
-#>  9 that   548786
+#>  9 that   548509
 #> 10 in     492712
 #> 11 me     466534
 #> 12 is     454161
-#> 13 what   426374
+#> 13 what   426276
 #> 14 this   402461
 #> 15 on     351029
 #> 16 for    347074
@@ -130,7 +130,7 @@ data_pooled |> print(n = 20)
 #> 18 i'm    327469
 #> 19 your   324879
 #> 20 we     320716
-#> # … with 197,167 more rows
+#> # … with 197,183 more rows
 ```
 
 You might notice that there are around 200,000 words here, instead of
@@ -183,20 +183,20 @@ After applying the patches, we obtain the following counts:
 ``` r
 data <- targets::tar_read("data_counts_patched")
 data
-#> # A tibble: 195,730 × 2
+#> # A tibble: 195,746 × 2
 #>    word        n
 #>    <chr>   <int>
 #>  1 you   1849097
-#>  2 i     1478143
+#>  2 i     1478079
 #>  3 the   1472817
 #>  4 to    1142851
 #>  5 a     1025032
 #>  6 and    670400
-#>  7 it     666678
+#>  7 it     666242
 #>  8 of     580112
-#>  9 that   548820
+#>  9 that   548543
 #> 10 in     492769
-#> # … with 195,720 more rows
+#> # … with 195,736 more rows
 ```
 
 We can rationalize our patching activity by looking at how many words
@@ -255,9 +255,9 @@ I seem to be missing around 3 million tokens.
 
 ``` r
 sum(data$n)
-#> [1] 47757827
+#> [1] 47755267
 51000000 - sum(data$n)
-#> [1] 3242173
+#> [1] 3244733
 ```
 
 Or perhaps I am missing just 2 million words, based on the published
@@ -267,7 +267,7 @@ frequencies:
 sum(data_subtlexus$FREQcount)
 #> [1] 49719560
 sum(data_subtlexus$FREQcount) - sum(data$n)
-#> [1] 1961733
+#> [1] 1964293
 ```
 
 Our raw text has lots of segmentation errors where multiple words are
@@ -421,15 +421,15 @@ data |>
 #>  9 am      49947 be    1546665
 #> 10 being   24581 be    1546665
 #> 11 m       10901 be    1546665
-#> 12 i     1478143 i     1478143
+#> 12 i     1478079 i     1478079
 #> 13 the   1472817 the   1472817
 #> 14 to    1142851 to    1142851
 #> 15 a     1025032 a     1118804
 #> 16 an      93772 a     1118804
 #> 17 and    670400 and    670400
-#> 18 it     666678 it     666678
-#> 19 that   548820 that   586731
-#> 20 those   37911 that   586731
+#> 18 it     666242 it     666242
+#> 19 that   548543 that   586454
+#> 20 those   37911 that   586454
 #> # … with 980 more rows
 ```
 
