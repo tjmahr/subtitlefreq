@@ -219,13 +219,13 @@ data_subtlexus |>
   select(1:2)
 ```
 
-Because of OCR converting "I" to "l", I patched the corpus to replace "l"
-with "I" when it was inside of an all-caps word. We can see the big
-differences in the counts between my counts and the published ones for
-certain initialisms.
+Because of OCR converting uppercase "I" to lowercase "l", I patched the
+corpus to replace lowercase "l" with uppercase "I" when it was inside of
+an all-caps word. We can see the big differences in the counts between
+my counts and the published ones for certain initialisms.
 
 ```{r}
-# raw, unpatched
+# my counts
 data_pooled |> 
   filter(word %in% c("fbi", "irs", "cia")) |> 
   arrange(word)
