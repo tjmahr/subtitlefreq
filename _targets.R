@@ -69,11 +69,9 @@ list(
     format = "fst_tbl"
   ),
 
-
-
-  # count words in each batch
+  # count words in each batch and combine
   tar_target(
-    "data_counts_by_batch",
+    "data_counts_pooled",
     data_raw_corpus_patched |>
       dplyr::select(-index) |>
       tidyr::nest(data = line) |>
@@ -82,13 +80,25 @@ list(
         counts = furrr::future_map(data, count_words_in_tibble)
       ) |>
       dplyr::select(batch, counts) |>
-      tidyr::unnest(counts)
+      tidyr::unnest(counts) |>
+      # combine all the counts together
+      dplyr::group_by(word) |>
+      dplyr::summarise(n = sum(n)) |>
+      dplyr::arrange(dplyr::desc(n))
   ),
 
-  # combine all the counts together
+  # count words in each batch
   tar_target(
-    "data_counts_pooled",
-    data_counts_by_batch |>
+    "data_counts_pooled_raw_lines",
+    data_raw_corpus |>
+      dplyr::select(-index) |>
+      tidyr::nest(data = line) |>
+      dplyr::mutate(
+        # count words in parallel
+        counts = furrr::future_map(data, count_words_in_tibble)
+      ) |>
+      dplyr::select(batch, counts) |>
+      tidyr::unnest(counts) |>
       dplyr::group_by(word) |>
       dplyr::summarise(n = sum(n)) |>
       dplyr::arrange(dplyr::desc(n))

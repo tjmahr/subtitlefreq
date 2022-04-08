@@ -127,25 +127,6 @@ data_pooled |>
   print(n = 20)
 ```
 
-
-## open questions (so far)
-
-I'm not sure what's going on with the encoding and whether that matters. If you
-find all lines with the string "Zellweger", you will find some `"Ren\xe9e
-Zellweger"` and some `"Renee Zellweger"` tokens.
-
-Numerals show up. I imagine that one would want to decompose them into subwords
-so that, e.g., "1993" is "nineteen", "ninety", and "three".
-
-
-```{r, echo = FALSE, eval = FALSE}
-# sample(data$word, 20)
-# data_raw <- targets::tar_read(data_raw_corpus_patched)
-# x <- data$word |> str_subset("^i'")
-# paste0(x,",",x)  |> writeLines()
-
-```
-
 ## comparisons
 
 What text-cleaning did they originally do?
@@ -257,3 +238,152 @@ data |>
 
 Hmm, I wish I could skip irregular forms from being lemmatized. I am
 also not a fan of "being" is reduced down to "be".
+
+
+## some comparisons for my own interest
+
+There are two layers of patching. One edits the lines in the corpus and
+the other edits the words and recounts the words. I want to compare 
+counts from three different stages.
+
+```{r}
+a <- targets::tar_read(data_counts_pooled_raw_lines) |> 
+  rename(n_a = n)
+b <- targets::tar_read(data_counts_pooled) |> 
+    rename(n_b = n)
+c <- targets::tar_read(data_counts_patched) |> 
+    rename(n_c = n)
+
+abc <- a |> 
+  full_join(b) |> 
+  full_join(c)
+```
+
+Line-patching tries to correct OCR errors and contractions with extra
+spacing ("isn 't "). These are words that would not exist if were not
+for the line patches. For example, *HIV* appears because OCR reads the
+word as `"HlV"`.
+
+```{r}
+abc |> 
+  filter(is.na(n_a)) |> 
+  mutate(
+    n_b_tokens = sum(n_b, na.rm = TRUE),
+    n_c_tokens = sum(n_c, na.rm = TRUE)
+  )
+```
+
+Words that were lost in the line patching. Some subtitles would have
+annotations like `"(SlNGlNG)"` or `"(lN ENGLlSH)"` so the OCR correction
+repaired these.
+
+```{r}
+abc |> 
+  filter(!is.na(n_a), is.na(n_b)) |> 
+  mutate(
+    n_a_tokens = sum(n_a, na.rm = TRUE)
+  )
+```
+
+Words that increased during line-patching. "Kitt", by the way, is the
+car from *Knight Rider*.
+
+```{r}
+diffs <- abc |> 
+  tidyr::replace_na(list(n_a = 0, n_b = 0, n_c = 0)) |> 
+  mutate(
+    b_vs_a = n_b - n_a,
+    # proportion change
+    b_vs_a_prop = b_vs_a / (n_a + 1),
+    c_vs_b = n_c - n_b,
+    # proportion change
+    c_vs_b_prop = c_vs_b / (n_b + 1),
+  ) 
+
+diffs |> 
+  select(-n_c, -starts_with("c_vs")) |> 
+  arrange(desc(b_vs_a))
+
+diffs |> 
+  select(-n_c, -starts_with("c_vs")) |> 
+  arrange(desc(b_vs_a_prop)) 
+```
+
+Words that decreased during line-patching.
+
+```{r}
+diffs |> 
+  select(-n_c, -starts_with("c_vs")) |> 
+  arrange(b_vs_a)
+
+diffs |> 
+  select(-n_c, -starts_with("c_vs")) |> 
+  arrange(b_vs_a_prop) 
+```
+
+
+Finally, these are words that changed with word-level patching.
+
+```{r}
+diffs |> 
+  select(-n_a, -starts_with("b_vs")) |> 
+  arrange(desc(c_vs_b))
+
+diffs |> 
+  select(-n_a, -starts_with("b_vs")) |> 
+  arrange(desc(c_vs_b_prop)) 
+```
+
+Words that decreased from word-patching.
+
+```{r}
+diffs |> 
+  select(-n_a, -starts_with("b_vs")) |> 
+  arrange(c_vs_b)
+```
+
+## how to spot errors
+
+My "process" for screening the corpus is to randomly sample words and
+see what sticks out. When I noticed `"cla"` in one of these samples, I
+figured out the `"I"` to `"l"` OCR problem in all-caps words.
+
+
+```{r}
+data_pooled$word |> 
+  sample(size = 10)
+```
+
+To feel better about things, you could weight by frequency:
+
+```{r}
+data_pooled$word |> 
+  sample(size = 10, prob = data_pooled$n)
+```
+
+
+
+
+## open questions (so far)
+
+I'm not sure what's going on with the encoding and whether that matters. If you
+find all lines with the string "Zellweger", you will find some `"Ren\xe9e
+Zellweger"` and some `"Renee Zellweger"` tokens.
+
+Numerals show up. I imagine that one would want to decompose them into subwords
+so that, e.g., "1993" is "nineteen", "ninety", and "three".
+
+Stray observations:
+
+- There are lots of URLs/usernames in the corpus because the subtitles can 
+be signed or sourced.
+
+- If a TV show has a theme song, then you can find many repeated lines. 
+
+```{r, echo = FALSE, eval = FALSE}
+data_raw$line |> 
+  stringr::str_subset(
+    stringr::fixed("violence in movies", ignore_case = TRUE)
+  ) |> 
+  substr(1, 30)
+```

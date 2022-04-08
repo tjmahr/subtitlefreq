@@ -2,6 +2,17 @@ old,new,comment
 (..+in)+'(?!(s$|ll$|t$|d$|est$|st$))(.+),\1' \3,<..in'word> into <..in' word> unless the word is one of those short contractions
 ^([a-pr-z])(.+)'il$,\1\2'll,<-'il> to <-'ll> unless the word has a q or is one-character (prevents french -'il contractions from being caught)
 (.+)lng,\1ing,<-lng> to <-ing>
-(.*)(lgh)(?!amdi)(.*),\1igh\3,<lgh> to <igh> except "alghamdi"
+(.*)(lgh)(?!(amdi|man))(.*),\1igh\4,<lgh> to <igh> except "alghamdi" and "tilghman"
 (.*)(flre)(.*),\1fire\3,<flre> to <fire>
+(.*)(lgn)(.*),\1ign\3,<lgn> to <ign>
 (.*)(dlrect)(.*),\1direct\3,<dlrect> to <direct>
+(.+)('nt)(.*),\1n't\3,<is'nt> to <isn't> etc
+(.+)('em$),\1 'em,<get'em> to <get 'em> etc
+nooo+,no,
+meee+,me,
+helloo+,hello,
+sooo+,so,
+whaaa+,whaa,
+grr+,grr,
+brr+,brr,
+rrr+,rrr,
