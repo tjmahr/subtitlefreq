@@ -8,6 +8,9 @@ old,new,comment
 (.*)(dlrect)(.*),\1direct\3,<dlrect> to <direct>
 (.+)('nt)(.*),\1n't\3,<is'nt> to <isn't> etc
 (.+)('em$),\1 'em,<get'em> to <get 'em> etc
+milii(.*),milli\1,<million> to <million> etc
+^ltal(.*),ital\1,<ltaly> to <italy> etc
+^smali(.*),small\1,<smali> to <small> etc
 nooo+,no,
 meee+,me,
 helloo+,hello,

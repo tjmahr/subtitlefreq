@@ -380,6 +380,8 @@ be signed or sourced.
 
 - If a TV show has a theme song, then you can find many repeated lines. 
 
+- other OCR errors to consider: i/l to 1
+
 ```{r, echo = FALSE, eval = FALSE}
 data_raw$line |> 
   stringr::str_subset(

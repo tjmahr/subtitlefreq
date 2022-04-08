@@ -202,5 +202,31 @@ patch_easy_ocr_errors <- function(data) {
      bind_rows(data_xxl) |>
      arrange(index)
 
+
+  # capital I in a lowercase word
+  data$line <- data$line |>
+    str_replace_all(regex("([A-z])(a|e|i|o|u)lI"), "\\1\\2ll") |>
+    str_replace_all(regex("(a|e|i|o|u)lI([a-z])"), "\\1ll\\2")
+
+  # trying to contextually fix "alI" for "all".
+  data$line <- data$line |>
+    str_replace_all(
+      regex("alI (for|just|angles|fours|on|day|alone|week|those|wrong|be|lies|upset|\\d|you|of|the|that|by|very|right|over|my|about|your|his|our|day|I|night|kinds|this)", ignore_case = TRUE),
+      "all \\1"
+    ) |>
+    str_replace_all(
+      regex("(on|or|him|and|not|were|was|they|I'm|let's|it's|us|could|at|they're|we're|you're|that's|after|of|we|it|for|you|are) alI", ignore_case = TRUE),
+      "\\1 all"
+    ) |>
+    str_replace_all(
+      fixed("y'alI", ignore_case = TRUE), "y'all"
+    ) |>
+    str_replace_all(
+      fixed("for-alI", ignore_case = TRUE), "for-all"
+    ) |>
+    str_replace_all(
+      fixed("iet's alI", ignore_case = TRUE), "let's all"
+    )
+
    data
  }
