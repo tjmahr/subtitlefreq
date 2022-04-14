@@ -28,7 +28,10 @@ patch_word_counts <- function(data_counts, data_patches) {
 }
 
 patch_text_contractions <- function(data) {
-  pat_nt <- regex("(doesn|didn|wouldn|wasn|should|isn|aren)( 't| ' t | t | ' t$)", ignore_case = TRUE)
+  pat_nt <- regex("(doesn|didn|wouldn|wasn|hadn|shouldn|isn|aren)( 't| ' t | t | ' t$)", ignore_case = TRUE)
+  # pat_bad_contractions <- regex("�(t|m|s|d|ll|il|ve)(\\W)|$", ignore_case = TRUE)
+  pat_quote_contractions <- regex("(\\w)\\\"(t|m|s|d|ll|il|ve)(\\W)|$", ignore_case = TRUE)
+
   data |>
     # filter(str_detect(line, regex("(?<=\\W)don 't", ignore_case = TRUE)))
     mutate(
@@ -53,7 +56,9 @@ patch_text_contractions <- function(data) {
         str_replace_all(
           pattern = regex("([A-z]+)( ' s | ' s$)", ignore_case = TRUE),
           replacement = " \\1's "
-        )
+        ) |>
+        # str_replace_all(pat_bad_contractions, "'\\1\\2") |>
+        str_replace_all(pat_quote_contractions, "\\1'\\2\\3")
     )
 }
 
@@ -69,6 +74,118 @@ patch_false_spaces <- function(data) {
         str_replace_all(pat_that, " that ") |>
         str_replace_all(pat_thats, " that's ")
     )
+}
+
+
+patch_encoding <- function(data, raw_file) {
+  gsub_bytes <- function(x, pattern, replacement) {
+    gsub(pattern = pattern, replacement = replacement, x = x, useBytes = TRUE)
+  }
+
+  grep_bytes <- function(x, pattern, invert = FALSE) {
+    grep(
+      pattern = pattern,
+      x = x,
+      value = TRUE,
+      useBytes = TRUE,
+      invert = invert
+    )
+  }
+
+  pat_bad_char <- "�"
+  enc <- data |>
+    filter(str_detect(line, pat_bad_char))
+
+  # This doesn't read every line :( !!!
+  lines_raw <- readLines(raw_file)
+
+  # lines_raw2 <- readLines(raw_file, )
+  # tail(lines_raw)
+  # lines_raw <- stringi::stri_read_lines(raw_file)
+  # tail(lines_raw)
+  # lines_raw2 <- readLines(raw_file, encoding = "UTF-8")
+
+
+  lines_repaired <- lines_raw[enc$index] |>
+    # two-character cases
+    gsub_bytes("crudit\xa0\xc1s", "crudités") |>
+    gsub_bytes("\xa1\xa6", "...") |>
+    gsub_bytes("\xa1\xad", " ") |>
+    gsub_bytes("\xa1\xb0", " ") |>
+    gsub_bytes("\xa1\xd3", " ") |>
+    gsub_bytes("\xa2\xdc", "") |>
+    gsub_bytes("\xe2\x80", " ") |>
+    gsub_bytes("\xb0\xb0", " ") |>
+    gsub_bytes("\xb4\xb4", " ") |>
+    gsub_bytes("\xa3\xba", " ") |>
+    gsub_bytes("\xa1\xb1", " ") |>
+    gsub_bytes("\xa3\xbf", " ") |>
+    gsub_bytes("\xa2\xdc", " ") |>
+    gsub_bytes("\xa7\xa7", " ") |>
+    gsub_bytes("\xa1\xaa", " ") |>
+    gsub_bytes("\xb6\xb6", " ") |>
+    gsub_bytes("\xa1\xc9", "¡É") |>
+    # gsub_bytes("\xef\xbf\xbd", "na") |>
+    gsub_bytes("fianc\xc8e", "fiancèe") |>
+    gsub_bytes("Voil\xc3", "Voilà") |>
+    # these all have equivalent meanings in ISO-8859-1 and WINDOWS-1252
+    gsub_bytes("\xea", "ê") |>
+    gsub_bytes("\xeb", "ë") |>
+    gsub_bytes("\xed", "í") |>
+    gsub_bytes("\xee", "î") |>
+    gsub_bytes("\xe1", "á") |>
+    gsub_bytes("\xe3", "ã") |>
+    gsub_bytes("\xe4", "ä") |>
+    gsub_bytes("\xe2", "â") |>
+    gsub_bytes("\xe7", "ç") |>
+    gsub_bytes("\xe8", "è") |>
+    gsub_bytes("\xe9", "é") |>
+    gsub_bytes("\xe0", "à") |>
+    gsub_bytes("\xf3", "ó") |>
+    gsub_bytes("\xf4", "ô") |>
+    gsub_bytes("\xf6", "ö") |>
+    gsub_bytes("\xf8", "ø") |>
+    gsub_bytes("\xfa", "ú") |>
+    gsub_bytes("\xfc", "ü") |>
+    gsub_bytes("\xa0", " ") |>
+    gsub_bytes("\xa1S", "¡S") |>
+    gsub_bytes("\xbf", "¿") |>
+    gsub_bytes("\xc1", "Á") |>
+    gsub_bytes("\xc4", "Ä") |>
+    gsub_bytes("\xc7", "Ç") |>
+    gsub_bytes("\xc9", "É") |>
+    gsub_bytes("\xf1", "ñ") |>
+    gsub_bytes("\xb4", "'") |>
+    gsub_bytes("\xdf", "ß") |>
+    # these don't have ISO8859-1 entries
+    gsub_bytes("\x85", "...") |>
+    gsub_bytes("\x91", "'") |>
+    gsub_bytes("\x92", "'") |>
+    gsub_bytes("\x93", '"') |>
+    gsub_bytes("\x94", '"') |>
+    gsub_bytes("\x96", " ") |> # –
+    gsub_bytes("\x97", " ") |> # —
+    # these are probably non-ISO-8859-1 and WINDOWS-1252 characters
+    gsub_bytes("\xba", "ş") |>
+    # \x9d is "ť" in "windows-1250" so these are probably OCR errors
+    # like "let's" is OCRed as "leťs"
+    gsub_bytes("\x9ds", "t's") |>
+    gsub_bytes("\x9dll", "t'll") |>
+    gsub_bytes("\x9dve", "t've") |>
+    gsub_bytes("\xefs", "d's") |>
+    gsub_bytes("\xefve", "d've") |>
+    # weird cases
+    gsub_bytes(" \xa4 ", " ") |>
+    gsub_bytes(" \x80 ", " ") |>
+    gsub_bytes(" \xa6 ", " ") |>
+    gsub_bytes(" ~\xa7 ", " ") |>
+    gsub_bytes(" \xa7 ", " ") |>
+    gsub_bytes(" \xb6 ", " ") |>
+    gsub_bytes(" \xc3 ", " ")
+
+
+  data[enc$index, "line"] <- lines_repaired
+  data
 }
 
 
@@ -206,6 +323,8 @@ patch_easy_ocr_errors <- function(data) {
   # capital I in a lowercase word
   data$line <- data$line |>
     str_replace_all(regex("([A-z])(a|e|i|o|u)lI"), "\\1\\2ll") |>
+    # don't hit "alive"
+    str_replace_all(fixed("alIve"), "alive") |>
     str_replace_all(regex("(a|e|i|o|u)lI([a-z])"), "\\1ll\\2")
 
   # trying to contextually fix "alI" for "all".

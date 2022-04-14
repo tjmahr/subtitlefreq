@@ -127,6 +127,9 @@ data_pooled |>
   print(n = 20)
 ```
 
+(*)The `allve` tokens are spurious corrections that are undone later on but I
+need to prevent them from being created.)
+
 ## comparisons
 
 What text-cleaning did they originally do?
@@ -250,9 +253,9 @@ counts from three different stages.
 a <- targets::tar_read(data_counts_pooled_raw_lines) |> 
   rename(n_a = n)
 b <- targets::tar_read(data_counts_pooled) |> 
-    rename(n_b = n)
+  rename(n_b = n)
 c <- targets::tar_read(data_counts_patched) |> 
-    rename(n_c = n)
+  rename(n_c = n)
 
 abc <- a |> 
   full_join(b) |> 
@@ -341,6 +344,82 @@ diffs |>
   select(-n_a, -starts_with("b_vs")) |> 
   arrange(c_vs_b)
 ```
+
+### contraction counts
+
+This was the motivation for this whole exercise. I can find some 715K 
+`n't` contractions. The published frequencies have around 733K `t` tokens. 
+That's a pretty good match. But I sum the contraction stems in the published 
+counts, I get 900K tokens. That's because the stem of `can't` is itself a common
+word `can`. 
+
+```{r}
+contraction_stems <- c(
+  "isn", "aren", "ain", "wasn",
+  "can",
+  "don", "doesn", "didn",
+  "couldn", "shouldn", "wouldn",
+  "hasn", "haven", "hadn",
+  "won",
+  "mustn", "needn", "shan"
+)
+
+data_my_counts <- data %>%
+  filter(
+    word %in% paste0(contraction_stems, "'t")
+  ) |> 
+  mutate(total = sum(n))
+  
+
+data_subtlexus_counts <- data_subtlexus |> 
+  select(
+    subtlexus_word = Word,
+    subtlexus_count = FREQcount 
+  ) |> 
+  filter(subtlexus_word %in% c("t", contraction_stems)) |> 
+  mutate(
+    word = ifelse(
+      subtlexus_word != "t",
+      paste0(subtlexus_word, "'t"),
+      subtlexus_word
+    ),
+    sum_of_non_t_items = sum(subtlexus_count) - 733338
+  )
+
+data_my_counts |> 
+  full_join(data_subtlexus_counts, by = "word")
+```
+
+If I count the stems in my counts, I can see about how many 
+contractions I have missed. We would get around 1K contractions with some 
+patching.
+
+```{r}
+ data %>%
+  filter(
+    word %in% paste0(contraction_stems),
+  ) |> 
+  group_by(
+    could_be_false_positive = word %in% c("can", "won", "haven", "don")
+  ) |> 
+  mutate(total = sum(n))
+```
+
+A quick check of what these remaining errors look like:
+
+```{r}
+data_patched_lines <- targets::tar_read("data_raw_corpus_patched")
+didn_lines <- data_patched_lines |> 
+  filter(str_detect(line, "didn[^'t]"))
+
+data_patched_lines |> 
+  filter(str_detect(line, "\\w\\\"\\w")) |> tail()
+```
+
+
+
+
+
 
 ## how to spot errors
 

@@ -63,6 +63,7 @@ list(
           stringr::str_remove_all(stringr::fixed("{i", ignore_case = TRUE)) |>
           stringr::str_remove_all(stringr::fixed("{/i", ignore_case = TRUE))
       ) |>
+      patch_encoding(raw_file = txt_raw_corpus) |>
       patch_false_spaces() |>
       patch_text_contractions() |>
       patch_easy_ocr_errors(),
