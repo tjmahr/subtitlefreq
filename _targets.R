@@ -39,6 +39,10 @@ list(
       )
       fs::file_move("data/Subtlex US/Subtlex.US.txt", "data/Subtlex.US.txt")
       fs::dir_delete("data/Subtlex US")
+
+      a <- shell("bash data/patch-line.sh")
+      file.remove("data/Subtlex.US.txt")
+      file.rename("data/Subtlex.US2.txt", "data/Subtlex.US.txt")
       "data/Subtlex.US.txt"
     }
   ),
@@ -63,7 +67,7 @@ list(
           stringr::str_remove_all(stringr::fixed("{i", ignore_case = TRUE)) |>
           stringr::str_remove_all(stringr::fixed("{/i", ignore_case = TRUE))
       ) |>
-      patch_encoding(raw_file = txt_raw_corpus) |>
+      patch_encoding() |>
       patch_false_spaces() |>
       patch_text_contractions() |>
       patch_easy_ocr_errors(),

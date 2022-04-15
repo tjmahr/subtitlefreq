@@ -77,7 +77,7 @@ patch_false_spaces <- function(data) {
 }
 
 
-patch_encoding <- function(data, raw_file) {
+patch_encoding <- function(data) {
   gsub_bytes <- function(x, pattern, replacement) {
     gsub(pattern = pattern, replacement = replacement, x = x, useBytes = TRUE)
   }
@@ -93,20 +93,16 @@ patch_encoding <- function(data, raw_file) {
   }
 
   pat_bad_char <- "�"
+  pat_badbad_char <- "��"
   enc <- data |>
-    filter(str_detect(line, pat_bad_char))
-
-  # This doesn't read every line :( !!!
-  lines_raw <- readLines(raw_file)
-
-  # lines_raw2 <- readLines(raw_file, )
-  # tail(lines_raw)
-  # lines_raw <- stringi::stri_read_lines(raw_file)
-  # tail(lines_raw)
-  # lines_raw2 <- readLines(raw_file, encoding = "UTF-8")
+    filter(str_detect(line, pat_bad_char)) |>
+    filter(!str_detect(line, pat_badbad_char))
 
 
-  lines_repaired <- lines_raw[enc$index] |>
+  lines_raw <- enc$line
+  Encoding(lines_raw) <- "unknown"
+
+  lines_repaired <- lines_raw |>
     # two-character cases
     gsub_bytes("crudit\xa0\xc1s", "crudités") |>
     gsub_bytes("\xa1\xa6", "...") |>
@@ -182,7 +178,6 @@ patch_encoding <- function(data, raw_file) {
     gsub_bytes(" \xa7 ", " ") |>
     gsub_bytes(" \xb6 ", " ") |>
     gsub_bytes(" \xc3 ", " ")
-
 
   data[enc$index, "line"] <- lines_repaired
   data
