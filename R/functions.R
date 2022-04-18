@@ -1,5 +1,7 @@
 library(dplyr)
 library(stringr)
+source(here::here("R/tribbles.R"))
+
 
 count_words_in_lines <- function(x) {
   tibble::tibble(line = x) |>
@@ -28,38 +30,152 @@ patch_word_counts <- function(data_counts, data_patches) {
 }
 
 patch_text_contractions <- function(data) {
-  pat_nt <- regex("(doesn|didn|wouldn|wasn|hadn|shouldn|isn|aren)( 't| ' t | t | ' t$)", ignore_case = TRUE)
-  # pat_bad_contractions <- regex("�(t|m|s|d|ll|il|ve)(\\W)|$", ignore_case = TRUE)
-  pat_quote_contractions <- regex("(\\w)\\\"(t|m|s|d|ll|il|ve)(\\W)|$", ignore_case = TRUE)
+  data <- data |>
+    anti_join(df_i_to_l_apostrophe, by = "index") |>
+    bind_rows(df_i_to_l_apostrophe) |>
+    arrange(index)
 
-  data |>
-    # filter(str_detect(line, regex("(?<=\\W)don 't", ignore_case = TRUE)))
+  # Find everything with a word, space, apostrophe, 1-3 chars, non-word char
+  data_space_apostrophe <- data |>
+    filter(str_detect(line, "\\w+\\s+'\\s*\\w{1,3}(\\W|$)")) |>
+    filter(
+      TRUE | str_detect(
+        line,
+        regex("\\w+\\s+'\\s*(t|m|s|d|ll|il|ve)(\\W|$)", ignore_case = TRUE)
+      )
+    )
+
+  regex_ic <- function(...) regex(..., ignore_case = TRUE)
+  fixed_ic <- function(...) fixed(..., ignore_case = TRUE)
+
+  # The second pattern in each pair is a less strict pattern. Any nonword
+  # character is detected. Use it for checking.
+
+  # [word] ' ve/ll/re/il (s'il vous plait)
+  pat_ll_ve_re <- regex_ic("(\\w+)(\\s+'\\s*)(ve|ll|re|il)( |$|[.,-])")
+  pat_ll_ve_re2 <- regex_ic("(\\w+)(\\s+'\\s*)(ve|ll|re|il)(\\W|$)")
+
+  # [word] ' s
+  pat_s <- regex("(\\w+)(\\s+'\\s*)(s)( |$|[.?,-])")
+  pat_s2 <- regex_ic("(\\w+)(\\s+'\\s*)(s)(\\W|$)")
+
+  # [word] ' d
+  pat_d <- regex("(\\w+)(\\s+'\\s*)(d)( |$|[.-])")
+  pat_d2 <- regex_ic("(\\w+)(\\s+'\\s*)(d)(\\W|$)")
+
+  # [word] ' d
+  pat_m <- regex("(\\w+)(\\s+'\\s*)(m)( |$|[.-])")
+  pat_m2 <- regex_ic("(\\w+)(\\s+'\\s*)(m)(\\W|$)")
+
+  # [word] ' t
+  pat_t <- regex("(\\w+)(\\s+'\\s*)(t)( |$|[\":.,!?-])")
+  pat_t2 <- regex_ic("(\\w+)(\\s+'\\s*)(t)(\\W|$)")
+
+
+  data_space_apostrophe$line <- data_space_apostrophe$line |>
+    str_replace_all(fixed_ic("ma ' am"), "ma'am") |>
+    str_replace_all(fixed_ic(" ' em"), " 'em") |>
+    str_replace_all("maitre 'd", "maitre d'") |>
+    str_replace_all(fixed("of'L'"), "of 'L'") |>
+    str_replace_all(pat_ll_ve_re, "\\1'\\3\\4") |>
+    str_replace_all(pat_s, "\\1'\\3\\4") |>
+    str_replace_all(pat_d, "\\1'\\3\\4") |>
+    str_replace_all(pat_m, "\\1'\\3\\4") |>
+    str_replace_all(pat_t, "\\1'\\3\\4")
+
+  # Use these to check what has not changed
+  # data_space_apostrophe$line |> str_subset(pat_ll_ve_re2)
+  # data_space_apostrophe$line |> str_subset(pat_s2)
+  # data_space_apostrophe$line |> str_subset(pat_m2)
+  # data_space_apostrophe$line |> str_subset(pat_d2)
+  # data_space_apostrophe$line |> str_subset(pat_t2)
+
+
+  data <- data |>
+    anti_join(data_space_apostrophe, by = "index") |>
+    bind_rows(data_space_apostrophe) |>
+    arrange(index)
+
+  # data_space_apostrophe <- data_space_apostrophe |>
+  #   filter(str_detect(line, "\\w+\\s+'\\s*\\w{1,3}(\\W|$)"))
+
+
+
+  # Find everything with a quotation mark in the middle of it
+  data_qc <- data |>
+    filter(str_detect(line, regex_ic("\\w+\\\"\\w+(\\W|$)")))
+
+  data_qc$line <- data_qc$line |>
+    str_replace_all(
+      regex_ic("(\\w)\\\"(t|m|s|d|ll|il|ve)(\\W|$)"),
+      "\\1'\\2\\3"
+    ) |>
+    str_replace_all(fixed_ic("y\"all"), "y'all") |>
+    str_replace_all(fixed_ic("ma\"am"), "ma'am") |>
+    str_replace_all(fixed_ic("\"hey\"ing"), "heying") |>
+    str_replace_all(fixed_ic("for\"give"), "forgive") |>
+    str_replace_all(fixed_ic("fin\"e"), "fine") |>
+    str_replace_all(fixed_ic("\"D\"ressed"), "Dressed") |>
+    str_replace_all(fixed_ic("E\"xorcist"), "Exorcist") |>
+    str_replace_all(fixed_ic("\"S\"p\"orts"), "Sports") |>
+    str_replace_all(fixed_ic("Com\"p\"osure"), "Composure") |>
+    str_replace_all(fixed_ic("\"Slee\"p\"Iess"), "Sleepless") |>
+    str_replace_all(fixed_ic("\"fl\""), "fl") |>
+    str_replace_all(fixed_ic("fl\""), "fl") |>
+    str_replace_all(fixed_ic("fi\""), "fi") |>
+    str_replace_all(regex_ic("(\\w)\"ky"), "\1ky") |>
+    str_replace_all(regex_ic("(\\w)\"(yt|yw)\"(\\w)"), "\1\2\3") |>
+    str_replace_all(regex_ic("(or|of|we|the)\"(\\w+)"), "\1 \2") |>
+    str_replace_all(regex_ic("called\"(\\w+)"), "called \1") |>
+    str_replace_all(regex_ic(" a\"(\\w+)"), " a \1") |>
+    str_replace_all(regex_ic("(\\w+)\"for"), "\1 for") |>
+    str_replace_all(regex_ic("(\\W)(\\w+)\"(\\w+)\"(\\w+)(\\W)"), "\1\2 \3 \4\5")
+    # this is not exhaustive.
+
+  data <- data |>
+    anti_join(data_qc, by = "index") |>
+    bind_rows(data_qc) |>
+    arrange(index)
+
+  data$line <- data$line |>
+    str_replace_all(fixed_ic("lsn't"), "isn't")
+
+  pat_contr <- regex_ic(
+    "(ain|doesn|didn|wouldn|wasn|hadn|shouldn|isn|aren|haven|don|won|can)\\W"
+  )
+
+  pat_nt <- regex(
+    "(^|\\W)(ain|doesn|didn|wouldn|wasn|hadn|shouldn|isn|aren|haven|dont|won|can)( t | t$ | t\\W)"
+  )
+
+  data_has_possible_contraction <- data |>
+    filter(str_detect(line, pat_contr))
+
+  # data_has_possible_contraction$line |> str_subset(pat_nt)
+
+  # fix "can t"-like errors
+  data_has_possible_contraction <- data_has_possible_contraction |>
     mutate(
       line = line |>
-        str_replace_all(pat_nt, " \\1't ") |>
-        str_replace_all(
-          pattern = regex("(?<=\\W)don( 't| ' t | t | ' t$)", ignore_case = TRUE),
-          replacement = " don't "
-        ) |>
-        str_replace_all(
-          pattern = regex("(?<=\\W)won( 't| ' t | t | ' t$)", ignore_case = TRUE),
-          replacement = " won't "
-        ) |>
-        str_replace_all(
-          pattern = regex("(?<=\\W)can( 't| ' t | t | ' t$)", ignore_case = TRUE),
-          replacement = " can't "
-        ) |>
-        str_replace_all(
-          pattern = regex("(?<=\\W)I( 'd| ' d | ' d$)", ignore_case = TRUE),
-          replacement = " I'd "
-        ) |>
-        str_replace_all(
-          pattern = regex("([A-z]+)( ' s | ' s$)", ignore_case = TRUE),
-          replacement = " \\1's "
-        ) |>
-        # str_replace_all(pat_bad_contractions, "'\\1\\2") |>
-        str_replace_all(pat_quote_contractions, "\\1'\\2\\3")
+        str_replace_all(fixed("Can T ell "), "Can Tell ") |>
+        str_replace_all(fixed("t ake off"), "take off") |>
+        str_replace_all(pat_nt, " \\1't ")
     )
+
+  data <- data |>
+    anti_join(data_has_possible_contraction, by = "index") |>
+    bind_rows(data_has_possible_contraction) |>
+    arrange(index)
+
+
+
+  # data$line |>
+  #   str_subset(regex("(^|\\W)though( t)($|\\W)", ignore_case = TRUE))
+
+  data$line <- data$line |>
+    str_replace_all(regex_ic("( |^)l'm "), "\1I'm ")
+
+  data
 }
 
 patch_false_spaces <- function(data) {
@@ -211,7 +327,6 @@ patch_easy_ocr_errors <- function(data) {
     bind_rows(data_xlx) |>
     arrange(index)
 
-
   # K -> lK errors
   pat_lk <- regex("(^| |Mc)(lK)([a-z]+)")
   data_lk <- data |>
@@ -261,6 +376,7 @@ patch_easy_ocr_errors <- function(data) {
     arrange(index)
 
   # lXX words
+  # (lowercase l plus rest of word in caps)
   data_lxx2 <- data |>
     filter(str_detect(line, " l[A-Z][A-Z]+")) |>
     mutate(
@@ -274,6 +390,7 @@ patch_easy_ocr_errors <- function(data) {
     arrange(index)
 
   # XX lX -> X IX
+  # (fix lT, lN, etc. if preceded by an all caps word)
   data_lx1 <- data |>
     filter(str_detect(line, "[A-Z][A-Z]+ l[A-Z]")) |>
     mutate(
@@ -286,7 +403,9 @@ patch_easy_ocr_errors <- function(data) {
     bind_rows(data_lx1) |>
     arrange(index)
 
+
   # lX XX -> IX XX
+  # (fix lT, lN, etc. if followed by an all caps word)
   data_lx2 <- data |>
     filter(str_detect(line, "l[A-Z] [A-Z][A-Z]+")) |>
     filter(!str_detect(line, pat_l_between_caps_false3)) |>
@@ -300,47 +419,52 @@ patch_easy_ocr_errors <- function(data) {
     bind_rows(data_lx2) |>
     arrange(index)
 
-
-  # XXl -> XXI (FBl -> FBI)
-   data_xxl <- data |>
+  # XXl -> XXI
+  # (FBl -> FBI)
+  data_xxl <- data |>
     filter(str_detect(line, "[A-Z][A-Z]l( |$)")) |>
     mutate(
       line = line |>
         str_replace_all("([A-Z][A-Z])l( |$)", "\\1I\\2")
     )
 
-   data <- data |>
-     anti_join(data_xxl, by = "index") |>
-     bind_rows(data_xxl) |>
-     arrange(index)
+  data <- data |>
+   anti_join(data_xxl, by = "index") |>
+   bind_rows(data_xxl) |>
+   arrange(index)
 
+  pat_lI_lc_word1 <- regex("([A-z])(a|e|i|o|u)lI")
+  pat_lI_lc_word2 <- regex("(a|e|i|o|u)lI([a-z])")
+
+  data_lI <- data |>
+    filter(
+      str_detect(line, pat_lI_lc_word1) | str_detect(line, pat_lI_lc_word2)
+  )
 
   # capital I in a lowercase word
-  data$line <- data$line |>
-    str_replace_all(regex("([A-z])(a|e|i|o|u)lI"), "\\1\\2ll") |>
-    # don't hit "alive"
-    str_replace_all(fixed("alIve"), "alive") |>
-    str_replace_all(regex("(a|e|i|o|u)lI([a-z])"), "\\1ll\\2")
+  data_lI$line <- data_lI$line |>
+    str_replace_all(pat_lI_lc_word1, "\\1\\2ll") |>
+    str_replace_all(pat_lI_lc_word2, "\\1ll\\2")
 
-  # trying to contextually fix "alI" for "all".
-  data$line <- data$line |>
-    str_replace_all(
-      regex("alI (for|just|angles|fours|on|day|alone|week|those|wrong|be|lies|upset|\\d|you|of|the|that|by|very|right|over|my|about|your|his|our|day|I|night|kinds|this)", ignore_case = TRUE),
-      "all \\1"
-    ) |>
-    str_replace_all(
-      regex("(on|or|him|and|not|were|was|they|I'm|let's|it's|us|could|at|they're|we're|you're|that's|after|of|we|it|for|you|are) alI", ignore_case = TRUE),
-      "\\1 all"
-    ) |>
-    str_replace_all(
-      fixed("y'alI", ignore_case = TRUE), "y'all"
-    ) |>
-    str_replace_all(
-      fixed("for-alI", ignore_case = TRUE), "for-all"
-    ) |>
-    str_replace_all(
-      fixed("iet's alI", ignore_case = TRUE), "let's all"
-    )
+  data <- data |>
+    anti_join(data_lI, by = "index") |>
+    bind_rows(data_lI) |>
+    arrange(index)
 
-   data
+
+  # fix "alI" for "all".
+  data_all <- data |>
+    filter(str_detect(line, regex("(^|\\W)([Aa][l][I])(\\W|$)"))) |>
+    # skip one unclear case
+    filter(!str_detect(line, fixed("AlI: Forman!")))
+
+  data_all$line <- data_all$line |>
+    str_replace_all(regex("(^|\\W)([Aa][Ll][I])(\\W|$)"), "\\1all\\3")
+
+  data <- data |>
+    anti_join(data_all, by = "index") |>
+    bind_rows(data_all) |>
+    arrange(index)
+
+  data
  }

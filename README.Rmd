@@ -127,9 +127,6 @@ data_pooled |>
   print(n = 20)
 ```
 
-(*)The `allve` tokens are spurious corrections that are undone later on but I
-need to prevent them from being created.)
-
 ## comparisons
 
 What text-cleaning did they originally do?
@@ -391,7 +388,7 @@ data_my_counts |>
 ```
 
 If I count the stems in my counts, I can see about how many 
-contractions I have missed. We would get around 1K contractions with some 
+contractions I have missed. We would get around 300 contractions with some 
 patching.
 
 ```{r}
