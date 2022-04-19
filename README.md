@@ -107,30 +107,30 @@ frequency counts:
 ``` r
 data_pooled <- targets::tar_read(data_counts_pooled)
 data_pooled |> print(n = 20)
-#> # A tibble: 197,690 × 2
+#> # A tibble: 197,235 × 2
 #>    word        n
 #>    <chr>   <int>
-#>  1 you   1842973
-#>  2 the   1472724
-#>  3 i     1464034
-#>  4 to    1142750
-#>  5 a     1024674
-#>  6 and    670364
-#>  7 it     659527
-#>  8 of     579893
-#>  9 that   545148
-#> 10 in     492714
-#> 11 me     466440
-#> 12 is     454166
-#> 13 what   424846
-#> 14 this   402462
-#> 15 on     350991
-#> 16 for    347072
-#> 17 my     340057
-#> 18 i'm    335638
-#> 19 your   324879
-#> 20 we     318246
-#> # … with 197,670 more rows
+#>  1 you   1842890
+#>  2 the   1472434
+#>  3 i     1463934
+#>  4 to    1142667
+#>  5 a     1024585
+#>  6 and    670082
+#>  7 it     659501
+#>  8 of     579717
+#>  9 that   545121
+#> 10 in     492688
+#> 11 me     466416
+#> 12 is     454119
+#> 13 what   424831
+#> 14 this   402426
+#> 15 on     350957
+#> 16 for    346986
+#> 17 my     340031
+#> 18 i'm    335623
+#> 19 your   324869
+#> 20 we     318233
+#> # … with 197,215 more rows
 ```
 
 You might notice that there are around 200,000 words here, instead of
@@ -144,7 +144,7 @@ endeavor, but hey, at least anyone can add to it.
 ``` r
 data_patches <- targets::tar_read("data_patches")
 data_patches
-#> # A tibble: 640 × 2
+#> # A tibble: 1,348 × 2
 #>    old          new          
 #>    <chr>        <chr>        
 #>  1 vamplre      vampire      
@@ -157,7 +157,7 @@ data_patches
 #>  8 negociating  negotiating  
 #>  9 lt'd         it'd         
 #> 10 goin'out     goin' out    
-#> # … with 630 more rows
+#> # … with 1,338 more rows
 ```
 
 These individual patches are followed by regular-expression-based
@@ -197,20 +197,20 @@ After applying the patches, we obtain the following counts:
 ``` r
 data <- targets::tar_read("data_counts_patched")
 data
-#> # A tibble: 196,035 × 2
+#> # A tibble: 195,426 × 2
 #>    word        n
 #>    <chr>   <int>
-#>  1 you   1843387
-#>  2 the   1472814
-#>  3 i     1464052
-#>  4 to    1142851
-#>  5 a     1024717
-#>  6 and    670400
-#>  7 it     659565
-#>  8 of     580330
-#>  9 that   545182
-#> 10 in     492771
-#> # … with 196,025 more rows
+#>  1 you   1843395
+#>  2 the   1472525
+#>  3 i     1463955
+#>  4 to    1142768
+#>  5 a     1024632
+#>  6 and    670118
+#>  7 it     659540
+#>  8 of     580154
+#>  9 that   545155
+#> 10 in     492745
+#> # … with 195,416 more rows
 ```
 
 We can rationalize our patching activity by looking at how many words
@@ -220,7 +220,7 @@ are affected:
 data_pooled |>
   anti_join(data, by = "word") |> 
   print(n = 20)
-#> # A tibble: 1,733 × 2
+#> # A tibble: 1,887 × 2
 #>    word          n
 #>    <chr>     <int>
 #>  1 i'il       2179
@@ -243,7 +243,7 @@ data_pooled |>
 #> 18 ltalians    135
 #> 19 lra         126
 #> 20 it'il       123
-#> # … with 1,713 more rows
+#> # … with 1,867 more rows
 ```
 
 ## comparisons
@@ -260,9 +260,9 @@ I seem to be missing around 3 million tokens.
 
 ``` r
 sum(data$n)
-#> [1] 47687822
+#> [1] 47672847
 51000000 - sum(data$n)
-#> [1] 3312178
+#> [1] 3327153
 ```
 
 Or perhaps I am missing just 2 million words, based on the published
@@ -272,7 +272,7 @@ frequencies:
 sum(data_subtlexus$FREQcount)
 #> [1] 49719560
 sum(data_subtlexus$FREQcount) - sum(data$n)
-#> [1] 2031738
+#> [1] 2046713
 ```
 
 Our raw text has lots of segmentation errors where multiple words are
@@ -312,7 +312,7 @@ data |>
 #>   word        n
 #>   <chr>   <int>
 #> 1 play    17980
-#> 2 playing  7694
+#> 2 playing  7692
 #> 3 played   2795
 #> 4 plays    1492
 ```
@@ -381,7 +381,7 @@ data_pooled |>
 #>   word      n
 #>   <chr> <int>
 #> 1 cia    1083
-#> 2 fbi     912
+#> 2 fbi     911
 #> 3 irs     121
 
 # published
@@ -415,26 +415,26 @@ data |>
 #> # Groups:   lemma [823]
 #>    word        n lemma lemma_n
 #>    <chr>   <int> <chr>   <int>
-#>  1 you   1843387 you   1851101
-#>  2 ya       7714 you   1851101
-#>  3 is     454171 be    1535701
-#>  4 be     289169 be    1535701
-#>  5 was    284105 be    1535701
-#>  6 are    262903 be    1535701
-#>  7 been    87376 be    1535701
-#>  8 were    83517 be    1535701
-#>  9 am      49879 be    1535701
-#> 10 being   24581 be    1535701
-#> 11 the   1472814 the   1472814
-#> 12 i     1464052 i     1464052
-#> 13 to    1142851 to    1142851
-#> 14 a     1024717 a     1118460
-#> 15 an      93743 a     1118460
-#> 16 and    670400 and    670400
-#> 17 it     659565 it     659565
-#> 18 that   545182 that   583093
-#> 19 those   37911 that   583093
-#> 20 of     580330 of     580330
+#>  1 you   1843395 you   1851099
+#>  2 ya       7704 you   1851099
+#>  3 is     454124 be    1535602
+#>  4 be     289158 be    1535602
+#>  5 was    284080 be    1535602
+#>  6 are    262896 be    1535602
+#>  7 been    87371 be    1535602
+#>  8 were    83515 be    1535602
+#>  9 am      49878 be    1535602
+#> 10 being   24580 be    1535602
+#> 11 the   1472525 the   1472525
+#> 12 i     1463955 i     1463955
+#> 13 to    1142768 to    1142768
+#> 14 a     1024632 a     1118353
+#> 15 an      93721 a     1118353
+#> 16 and    670118 and    670118
+#> 17 it     659540 it     659540
+#> 18 that   545155 that   583064
+#> 19 those   37909 that   583064
+#> 20 of     580154 of     580154
 #> # … with 980 more rows
 ```
 
@@ -474,20 +474,20 @@ abc |>
     n_b_tokens = sum(n_b, na.rm = TRUE),
     n_c_tokens = sum(n_c, na.rm = TRUE)
   )
-#> # A tibble: 2,733 × 6
+#> # A tibble: 2,706 × 6
 #>    word       n_a   n_b   n_c n_b_tokens n_c_tokens
 #>    <chr>    <int> <int> <int>      <int>      <int>
-#>  1 hiv         NA   227   227       9791       9913
-#>  2 rené        NA   142   142       9791       9913
-#>  3 cliché      NA   132   132       9791       9913
-#>  4 ş           NA   131   131       9791       9913
-#>  5 á           NA   121   121       9791       9913
-#>  6 señora      NA   105   105       9791       9913
-#>  7 führer      NA    99    99       9791       9913
-#>  8 pelé        NA    97    97       9791       9913
-#>  9 fräulein    NA    90    90       9791       9913
-#> 10 señorita    NA    90    90       9791       9913
-#> # … with 2,723 more rows
+#>  1 hiv         NA   227   227       9422       9534
+#>  2 rené        NA   142   142       9422       9534
+#>  3 cliché      NA   132   132       9422       9534
+#>  4 ş           NA   119   119       9422       9534
+#>  5 señora      NA   105   105       9422       9534
+#>  6 führer      NA    99    99       9422       9534
+#>  7 pelé        NA    97    97       9422       9534
+#>  8 fräulein    NA    90    90       9422       9534
+#>  9 señorita    NA    90    90       9422       9534
+#> 10 temüjin     NA    68    68       9422       9534
+#> # … with 2,696 more rows
 ```
 
 Words that were lost in the line patching. Some subtitles would have
@@ -500,20 +500,20 @@ abc |>
   mutate(
     n_a_tokens = sum(n_a, na.rm = TRUE)
   )
-#> # A tibble: 4,633 × 5
-#>    word       n_a   n_b   n_c n_a_tokens
-#>    <chr>    <int> <int> <int>      <int>
-#>  1 teli      1002    NA    NA      26792
-#>  2 realiy     859    NA    NA      26792
-#>  3 rlggs      682    NA    NA      26792
-#>  4 lsn't      660    NA    NA      26792
-#>  5 stili      445    NA    NA      26792
-#>  6 helio      442    NA    NA      26792
-#>  7 sdl        360    NA    NA      26792
-#>  8 alds       302    NA    NA      26792
-#>  9 slpowlcz   199    NA    NA      26792
-#> 10 slnglng    187    NA    NA      26792
-#> # … with 4,623 more rows
+#> # A tibble: 5,061 × 5
+#>    word            n_a   n_b   n_c n_a_tokens
+#>    <chr>         <int> <int> <int>      <int>
+#>  1 teli           1002    NA    NA      29921
+#>  2 realiy          859    NA    NA      29921
+#>  3 www.forom.com   722    NA    NA      29921
+#>  4 rlggs           682    NA    NA      29921
+#>  5 lsn't           660    NA    NA      29921
+#>  6 stili           445    NA    NA      29921
+#>  7 helio           442    NA    NA      29921
+#>  8 sdl             360    NA    NA      29921
+#>  9 alds            302    NA    NA      29921
+#> 10 slpowlcz        199    NA    NA      29921
+#> # … with 5,051 more rows
 ```
 
 Words that increased during line-patching. “Kitt”, by the way, is the
@@ -534,38 +534,38 @@ diffs <- abc |>
 diffs |> 
   select(-n_c, -starts_with("c_vs")) |> 
   arrange(desc(b_vs_a))
-#> # A tibble: 202,397 × 5
+#> # A tibble: 202,370 × 5
 #>    word      n_a    n_b b_vs_a b_vs_a_prop
 #>    <chr>   <int>  <int>  <int>       <dbl>
-#>  1 i'm    327468 335638   8170      0.0249
-#>  2 it's   276005 283816   7811      0.0283
-#>  3 don't  309965 316504   6539      0.0211
-#>  4 that's 159049 163189   4140      0.0260
-#>  5 you're 184816 188704   3888      0.0210
-#>  6 all    257742 261045   3303      0.0128
-#>  7 i'll   111235 113743   2508      0.0225
+#>  1 i'm    327468 335623   8155      0.0249
+#>  2 it's   276005 283794   7789      0.0282
+#>  3 don't  309965 316493   6528      0.0211
+#>  4 that's 159049 163181   4132      0.0260
+#>  5 you're 184816 188698   3882      0.0210
+#>  6 all    257742 261032   3290      0.0128
+#>  7 i'll   111235 113741   2506      0.0225
 #>  8 kitt       11   2079   2068    172.    
-#>  9 can't   90478  92515   2037      0.0225
-#> 10 well   152957 154964   2007      0.0131
-#> # … with 202,387 more rows
+#>  9 can't   90478  92488   2010      0.0222
+#> 10 well   152957 154957   2000      0.0131
+#> # … with 202,360 more rows
 
 diffs |> 
   select(-n_c, -starts_with("c_vs")) |> 
   arrange(desc(b_vs_a_prop)) 
-#> # A tibble: 202,397 × 5
+#> # A tibble: 202,370 × 5
 #>    word     n_a   n_b b_vs_a b_vs_a_prop
 #>    <chr>  <int> <int>  <int>       <dbl>
 #>  1 hiv        0   227    227        227 
 #>  2 kitt      11  2079   2068        172.
 #>  3 rené       0   142    142        142 
 #>  4 cliché     0   132    132        132 
-#>  5 ş          0   131    131        131 
-#>  6 á          0   121    121        121 
-#>  7 cia        8  1083   1075        119.
-#>  8 fiancé     2   323    321        107 
-#>  9 señora     0   105    105        105 
-#> 10 führer     0    99     99         99 
-#> # … with 202,387 more rows
+#>  5 cia        8  1083   1075        119.
+#>  6 ş          0   119    119        119 
+#>  7 fiancé     2   323    321        107 
+#>  8 señora     0   105    105        105 
+#>  9 führer     0    99     99         99 
+#> 10 pelé       0    97     97         97 
+#> # … with 202,360 more rows
 ```
 
 Words that decreased during line-patching.
@@ -574,38 +574,38 @@ Words that decreased during line-patching.
 diffs |> 
   select(-n_c, -starts_with("c_vs")) |> 
   arrange(b_vs_a)
-#> # A tibble: 202,397 × 5
+#> # A tibble: 202,370 × 5
 #>    word      n_a     n_b b_vs_a b_vs_a_prop
 #>    <chr>   <int>   <int>  <int>       <dbl>
-#>  1 s       30138    4354 -25784    -0.856  
-#>  2 t       19441    3613 -15828    -0.814  
-#>  3 i     1478384 1464034 -14350    -0.00971
+#>  1 s       30138    4347 -25791    -0.856  
+#>  2 t       19441    3609 -15832    -0.814  
+#>  3 i     1478384 1463934 -14450    -0.00977
 #>  4 m       10901    2619  -8282    -0.760  
-#>  5 it     666532  659527  -7005    -0.0105 
+#>  5 it     666532  659501  -7031    -0.0105 
 #>  6 don      8418    1866  -6552    -0.778  
-#>  7 re       8044    2066  -5978    -0.743  
-#>  8 you   1848677 1842973  -5704    -0.00309
+#>  7 re       8044    2064  -5980    -0.743  
+#>  8 you   1848677 1842890  -5787    -0.00313
 #>  9 ll       5413     721  -4692    -0.867  
-#> 10 that   548765  545148  -3617    -0.00659
-#> # … with 202,387 more rows
+#> 10 that   548765  545121  -3644    -0.00664
+#> # … with 202,360 more rows
 
 diffs |> 
   select(-n_c, -starts_with("c_vs")) |> 
   arrange(b_vs_a_prop) 
-#> # A tibble: 202,397 × 5
-#>    word       n_a   n_b b_vs_a b_vs_a_prop
-#>    <chr>    <int> <int>  <int>       <dbl>
-#>  1 teli      1002     0  -1002      -0.999
-#>  2 realiy     859     0   -859      -0.999
-#>  3 rlggs      682     0   -682      -0.999
-#>  4 lsn't      660     0   -660      -0.998
-#>  5 stili      445     0   -445      -0.998
-#>  6 helio      442     0   -442      -0.998
-#>  7 sdl        360     0   -360      -0.997
-#>  8 weli      2015     5  -2010      -0.997
-#>  9 alds       302     0   -302      -0.997
-#> 10 slpowlcz   199     0   -199      -0.995
-#> # … with 202,387 more rows
+#> # A tibble: 202,370 × 5
+#>    word            n_a   n_b b_vs_a b_vs_a_prop
+#>    <chr>         <int> <int>  <int>       <dbl>
+#>  1 teli           1002     0  -1002      -0.999
+#>  2 realiy          859     0   -859      -0.999
+#>  3 www.forom.com   722     0   -722      -0.999
+#>  4 rlggs           682     0   -682      -0.999
+#>  5 lsn't           660     0   -660      -0.998
+#>  6 stili           445     0   -445      -0.998
+#>  7 helio           442     0   -442      -0.998
+#>  8 sdl             360     0   -360      -0.997
+#>  9 weli           2015     5  -2010      -0.997
+#> 10 alds            302     0   -302      -0.997
+#> # … with 202,360 more rows
 ```
 
 Finally, these are words that changed with word-level patching.
@@ -614,38 +614,38 @@ Finally, these are words that changed with word-level patching.
 diffs |> 
   select(-n_a, -starts_with("b_vs")) |> 
   arrange(desc(c_vs_b))
-#> # A tibble: 202,397 × 5
-#>    word         n_b    n_c c_vs_b c_vs_b_prop
-#>    <chr>      <int>  <int>  <int>       <dbl>
-#>  1 i'll      113743 115952   2209    0.0194  
-#>  2 italian      243   1261   1018    4.17    
-#>  3 like      202295 203021    726    0.00359 
-#>  4 inspector   1089   1727    638    0.585   
-#>  5 just      241474 242107    633    0.00262 
-#>  6 we'll      34108  34691    583    0.0171  
-#>  7 italy         73    631    558    7.54    
-#>  8 you'll     31340  31867    527    0.0168  
-#>  9 em         12149  12655    506    0.0416  
-#> 10 of        579893 580330    437    0.000754
-#> # … with 202,387 more rows
+#> # A tibble: 202,370 × 5
+#>    word          n_b     n_c c_vs_b c_vs_b_prop
+#>    <chr>       <int>   <int>  <int>       <dbl>
+#>  1 i'll       113741  115956   2215    0.0195  
+#>  2 italian       237    1255   1018    4.28    
+#>  3 like       202274  203001    727    0.00359 
+#>  4 just       241452  242108    656    0.00272 
+#>  5 inspector    1089    1727    638    0.585   
+#>  6 we'll       34108   34696    588    0.0172  
+#>  7 italy          73     631    558    7.54    
+#>  8 you'll      31339   31869    530    0.0169  
+#>  9 em          12149   12655    506    0.0416  
+#> 10 you       1842890 1843395    505    0.000274
+#> # … with 202,360 more rows
 
 diffs |> 
   select(-n_a, -starts_with("b_vs")) |> 
   arrange(desc(c_vs_b_prop)) 
-#> # A tibble: 202,397 × 5
+#> # A tibble: 202,370 × 5
 #>    word        n_b   n_c c_vs_b c_vs_b_prop
 #>    <chr>     <int> <int>  <int>       <dbl>
-#>  1 innsbruck     0    14     14       14   
-#>  2 rlnging       0    12     12       12   
-#>  3 ireland      20   258    238       11.3 
-#>  4 l'orange      0    10     10       10   
-#>  5 italy        73   631    558        7.54
-#>  6 italians     17   152    135        7.5 
-#>  7 ignatius      2    17     15        5   
-#>  8 l'eveque      0     5      5        5   
-#>  9 l'heure       0     5      5        5   
-#> 10 wawy          0     5      5        5   
-#> # … with 202,387 more rows
+#>  1 ided          2    77     75       25   
+#>  2 innsbruck     0    14     14       14   
+#>  3 rlnging       0    12     12       12   
+#>  4 ireland      20   258    238       11.3 
+#>  5 l'orange      0    10     10       10   
+#>  6 italy        73   631    558        7.54
+#>  7 italians     17   152    135        7.5 
+#>  8 ignatius      2    17     15        5   
+#>  9 l'eveque      0     5      5        5   
+#> 10 l'heure       0     5      5        5   
+#> # … with 202,360 more rows
 ```
 
 Words that decreased from word-patching.
@@ -654,7 +654,7 @@ Words that decreased from word-patching.
 diffs |> 
   select(-n_a, -starts_with("b_vs")) |> 
   arrange(c_vs_b)
-#> # A tibble: 202,397 × 5
+#> # A tibble: 202,370 × 5
 #>    word        n_b   n_c c_vs_b c_vs_b_prop
 #>    <chr>     <int> <int>  <int>       <dbl>
 #>  1 i'il       2179     0  -2179      -1.00 
@@ -667,7 +667,7 @@ diffs |>
 #>  8 lnn         345     0   -345      -0.997
 #>  9 lce         319     0   -319      -0.997
 #> 10 lt's        302     0   -302      -0.997
-#> # … with 202,387 more rows
+#> # … with 202,360 more rows
 ```
 
 ### contraction counts
@@ -716,24 +716,24 @@ data_my_counts |>
 #> # A tibble: 19 × 6
 #>    word           n  total subtlexus_word subtlexus_count sum_of_non_t_items
 #>    <chr>      <int>  <int> <chr>                    <dbl>              <dbl>
-#>  1 don't     316522 717110 don                     321085             899598
-#>  2 can't      92548 717110 can                     267620             899598
-#>  3 didn't     79884 717110 didn                     80623             899598
-#>  4 won't      34267 717110 won                      38729             899598
-#>  5 doesn't    32166 717110 doesn                    32435             899598
-#>  6 isn't      30321 717110 isn                      29886             899598
-#>  7 wouldn't   23397 717110 wouldn                   23628             899598
-#>  8 ain't      21810 717110 ain                      22248             899598
-#>  9 wasn't     21716 717110 wasn                     21984             899598
-#> 10 haven't    18464 717110 haven                    18844             899598
-#> 11 couldn't   17080 717110 couldn                   17336             899598
-#> 12 aren't     11860 717110 aren                     11946             899598
-#> 13 shouldn't   8013 717110 shouldn                   8083             899598
-#> 14 hasn't      4561 717110 hasn                      4625             899598
-#> 15 hadn't      3081 717110 <NA>                        NA                 NA
-#> 16 mustn't      945 717110 <NA>                        NA                 NA
-#> 17 needn't      328 717110 needn                      334             899598
-#> 18 shan't       147 717110 shan                       192             899598
+#>  1 don't     316606 717293 don                     321085             899598
+#>  2 can't      92549 717293 can                     267620             899598
+#>  3 didn't     79911 717293 didn                     80623             899598
+#>  4 won't      34274 717293 won                      38729             899598
+#>  5 doesn't    32168 717293 doesn                    32435             899598
+#>  6 isn't      30325 717293 isn                      29886             899598
+#>  7 wouldn't   23406 717293 wouldn                   23628             899598
+#>  8 ain't      21812 717293 ain                      22248             899598
+#>  9 wasn't     21726 717293 wasn                     21984             899598
+#> 10 haven't    18467 717293 haven                    18844             899598
+#> 11 couldn't   17088 717293 couldn                   17336             899598
+#> 12 aren't     11876 717293 aren                     11946             899598
+#> 13 shouldn't   8019 717293 shouldn                   8083             899598
+#> 14 hasn't      4561 717293 hasn                      4625             899598
+#> 15 hadn't      3085 717293 <NA>                        NA                 NA
+#> 16 mustn't      945 717293 <NA>                        NA                 NA
+#> 17 needn't      328 717293 needn                      334             899598
+#> 18 shan't       147 717293 shan                       192             899598
 #> 19 t             NA     NA t                       733338             899598
 ```
 
@@ -753,10 +753,10 @@ I have missed. We would get around 300 contractions with some patching.
 #> # Groups:   could_be_false_positive [2]
 #>    word         n could_be_false_positive  total
 #>    <chr>    <int> <lgl>                    <int>
-#>  1 can     171761 TRUE                    177954
-#>  2 won       4087 TRUE                    177954
-#>  3 don       1866 TRUE                    177954
-#>  4 haven      240 TRUE                    177954
+#>  1 can     171754 TRUE                    177947
+#>  2 won       4087 TRUE                    177947
+#>  3 don       1866 TRUE                    177947
+#>  4 haven      240 TRUE                    177947
 #>  5 ain         54 FALSE                      248
 #>  6 shan        52 FALSE                      248
 #>  7 didn        47 FALSE                      248
@@ -800,8 +800,8 @@ figured out the `"I"` to `"l"` OCR problem in all-caps words.
 ``` r
 data_pooled$word |> 
   sample(size = 10)
-#>  [1] "trillion"     "meats"        "blimpy"       "sobbing"      "mckinlock"   
-#>  [6] "recognizably" "choosingpart" "baccala"      "payaso"       "minefields"
+#>  [1] "anderson's"   "pfft"         "bodystackers" "dose"         "megaproject" 
+#>  [6] "returneth"    "cinnimum"     "chaucer"      "penthonal"    "overcast"
 ```
 
 To feel better about things, you could weight by frequency:
@@ -809,8 +809,8 @@ To feel better about things, you could weight by frequency:
 ``` r
 data_pooled$word |> 
   sample(size = 10, prob = data_pooled$n)
-#>  [1] "tells"     "wait"      "is"        "could"     "us"        "cannibals"
-#>  [7] "escapes"   "to"        "wilson"    "matter"
+#>  [1] "acting"      "wait"        "is"          "could"       "us"         
+#>  [6] "andromeda's" "rumours"     "to"          "girl's"      "excuse"
 ```
 
 ## open questions (so far)

@@ -67,6 +67,7 @@ list(
           stringr::str_remove_all(stringr::fixed("{i", ignore_case = TRUE)) |>
           stringr::str_remove_all(stringr::fixed("{/i", ignore_case = TRUE))
       ) |>
+      remove_subtitle_credits() |>
       patch_encoding() |>
       patch_false_spaces() |>
       patch_text_contractions() |>

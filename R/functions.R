@@ -16,6 +16,86 @@ count_words_in_tibble <- function(x) {
     count(word)
 }
 
+remove_subtitle_credits <- function(data) {
+  zap_lines <- function(data, pattern) {
+    fixed_ic <- function(...) fixed(..., ignore_case = TRUE)
+    indices <- data[["line"]] |>
+      str_which(fixed_ic(pattern))
+    message(paste0("Zapping `", pattern, "`: ", length(indices), " lines"))
+    data[["line"]][indices] <- ""
+    data
+  }
+
+  zap_lines_re <- function(data, pattern) {
+    regex_ic <- function(...) regex(..., ignore_case = TRUE)
+    indices <- data[["line"]] |>
+      str_which(regex_ic(pattern))
+    message(paste0("Zapping `", pattern, "`: ", length(indices), " lines"))
+    data[["line"]][indices] <- ""
+    data
+  }
+
+  data <- data |>
+    zap_lines("Synchro:" ) |>
+    zap_lines("forom.com") |>
+    zap_lines("www.forom") |>
+    zap_lines("opensubtitles") |>
+    zap_lines("www.ydy.com") |>
+    zap_lines("YTET") |>
+    zap_lines("YDY.com") |>
+    zap_lines("subtitlesbox.com") |>
+    zap_lines("www.outpost-daria.com") |>
+    zap_lines("Dictation: ") |>
+    zap_lines_re("^Transcript: ") |>
+    zap_lines_re("^Subtitles: ") |>
+    zap_lines_re("^English Subtitles") |>
+    zap_lines_re("^Subtitles by") |>
+    zap_lines_re("^Ripped by") |>
+    zap_lines("subtitles conformed") |>
+    zap_lines("DVD subtitles by") |>
+    zap_lines("asscrewz") |>
+    zap_lines("NeKryXe") |>
+    zap_lines("Visiontext") |>
+    zap_lines("RavyDavy") |>
+    zap_lines("sudamerica") |>
+    zap_lines("English Subtitle: ") |>
+    zap_lines("1000fr") |>
+    zap_lines("seriessub") |>
+    zap_lines("nate.com") |>
+    zap_lines("swsub.com") |>
+    zap_lines("Subtitulado") |>
+    zap_lines("SubRip") |>
+    zap_lines_re("^Sync : ") |>
+    zap_lines_re("^Transcript : ") |>
+    zap_lines("MySubtitles") |>
+    zap_lines("frigorifix") |>
+    zap_lines("Ripping & Subtitles") |>
+    zap_lines("CaptionMax") |>
+    zap_lines("yellowsubteam") |>
+    zap_lines("this subtitle") |>
+    zap_lines("Subtitles corrected") |>
+    zap_lines("ShooCat") |>
+    zap_lines("fabiusX") |>
+    zap_lines("Subtitulos") |>
+    zap_lines("Rainingturds@yahoo") |>
+    zap_lines("rinonapo") |>
+    zap_lines("heroessubs") |>
+    zap_lines("MSN:ts_leo") |>
+    zap_lines("dlphimdvd") |>
+    zap_lines("deadlikemeonline") |>
+    zap_lines("Mircx") |>
+    zap_lines("broadcasttext") |>
+    zap_lines("Ripped/Corrected") |>
+    zap_lines("luckywith007") |>
+    zap_lines("darvimil") |>
+    zap_lines("itwvfsub") |>
+    zap_lines("GRuPoUToPiA") |>
+    zap_lines("ir_guitar") |>
+    zap_lines("Witewave's") |>
+    zap_lines("fitbbs") |>
+    zap_lines("walla.com")
+  data
+}
 
 patch_word_counts <- function(data_counts, data_patches) {
   rules <- stats::setNames(data_patches$new, paste0("^", data_patches$old, "$"))
