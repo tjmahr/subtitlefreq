@@ -31,7 +31,34 @@ str_context <- function(xs, pattern, amount = 5) {
 
 str_replace_all_verbose <- function(xs, pattern, replacement) {
   indices <- xs |> str_which(pattern)
-  message(paste0("Replacing `", pattern, "`: ", length(indices), " lines"))
+
+  message_header <- glue::glue(
+    "Replacing {usethis::ui_field(pattern)} ({length(indices)} lines)"
+  )
+
+  matches <- xs[indices] |>
+    str_extract_all(pattern) |>
+    unlist() |>
+    table() |>
+    sort(decreasing = TRUE)
+
+  matches <- matches[matches > 100]
+  if (length(matches)) {
+    reps <- str_replace_all(names(matches), pattern, replacement)
+    examples <- character(length(matches))
+    for (i in seq_along(matches)) {
+      n <- names(matches)[i]
+      r <- reps[i]
+      m <- matches[i]
+      examples[i] <-  glue::glue(
+        "e.g., {usethis::ui_field(n)} -> {usethis::ui_field(r)} ({m} lines)"
+      )
+    }
+    message_header <- c(message_header, examples)
+  }
+
+  rlang::inform(message_header)
+
   xs[indices] <- str_replace_all(xs[indices], pattern, replacement)
   xs
 }
