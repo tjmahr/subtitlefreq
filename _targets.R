@@ -71,7 +71,8 @@ list(
       patch_encoding() |>
       patch_false_spaces() |>
       patch_text_contractions() |>
-      patch_easy_ocr_errors(),
+      patch_easy_ocr_errors() |>
+      patch_short_ocr_errors(),
     format = "fst_tbl"
   ),
 
