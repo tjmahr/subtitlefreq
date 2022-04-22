@@ -20,6 +20,16 @@ grep_bytes <- function(x, pattern, invert = FALSE) {
   )
 }
 
+locate_bytes <- function(x, pattern, invert = FALSE) {
+  grep(
+    pattern = pattern,
+    x = x,
+    value = FALSE,
+    useBytes = TRUE,
+    invert = invert
+  )
+}
+
 str_context <- function(xs, pattern, amount = 5) {
   padded <- sprintf(".{0,%s}%s.{0,%s}", amount, pattern, amount)
   padded <- regex(padded)
@@ -32,8 +42,10 @@ str_context <- function(xs, pattern, amount = 5) {
 str_replace_all_verbose <- function(xs, pattern, replacement) {
   indices <- xs |> str_which(pattern)
 
+  printed_pattern <- pattern |> str_replace_all(" ", "·")
+
   message_header <- glue::glue(
-    "Replacing {usethis::ui_field(pattern)} ({length(indices)} lines)"
+    "Replacing {usethis::ui_field(printed_pattern)} ({length(indices)} lines)"
   )
 
   matches <- xs[indices] |>
@@ -45,6 +57,8 @@ str_replace_all_verbose <- function(xs, pattern, replacement) {
   matches <- matches[matches > 100]
   if (length(matches)) {
     reps <- str_replace_all(names(matches), pattern, replacement)
+    names(matches) <- str_replace_all(names(matches), " ", "·")
+    reps <- str_replace_all(reps, " ", "·")
     examples <- character(length(matches))
     for (i in seq_along(matches)) {
       n <- names(matches)[i]
@@ -62,6 +76,36 @@ str_replace_all_verbose <- function(xs, pattern, replacement) {
   xs[indices] <- str_replace_all(xs[indices], pattern, replacement)
   xs
 }
+
+
+explore_splits <- function(set, word) {
+  pl <- paste0("\\b", word, "(\\w+)")
+  pr <- paste0("\\b", "(\\w+)", word, "\\b")
+  l <- set |> str_subset(pl)
+  r <- set |> str_subset(pr)
+
+  tl <- tibble(
+    token = l,
+    both = str_replace(token, pl, paste(word, "\\1"))
+  )
+
+  tr <- tibble(
+    token = r,
+    both = str_replace(token, pr, paste("\\1", word))
+  )
+
+  bind_rows(tl, tr) |>
+    filter(!hunspell::hunspell_check(token)) |>
+    mutate(
+      left = str_extract(both, "^\\w+\\b"),
+      right = str_extract(both, "\\b\\w+$"),
+      left_c = hunspell::hunspell_check(left),
+      right_c = hunspell::hunspell_check(right),
+      patch = paste0(token,",",both)
+    )  |>
+    filter(left_c, right_c)
+}
+
 
 regexes <- list(
   pat_bad_char = regex("�"),
@@ -251,6 +295,8 @@ patch_encoding <- function(data) {
   Encoding(lines_raw) <- "unknown"
 
   lines_repaired <- lines_raw |>
+    # this one is probably non-ISO-8859-1 and WINDOWS-1252 characters
+    gsub_bytes("I\xbaik", "Işik") |>
     gsub_bytes("fianc\xc8e", "fiancèe") |>
     gsub_bytes("Voil\xc3", "Voilà") |>
     # these all have equivalent meanings in ISO-8859-1 and WINDOWS-1252
@@ -290,8 +336,6 @@ patch_encoding <- function(data) {
     gsub_bytes("\x94", '"') |>
     gsub_bytes("\x96", " ") |> # –
     gsub_bytes("\x97", " ") |> # —
-    # these are probably non-ISO-8859-1 and WINDOWS-1252 characters
-    gsub_bytes("\xba", "ş") |>
     # \x9d is "ť" in "windows-1250" so these are probably OCR errors
     # like "let's" is OCRed as "leťs"
     gsub_bytes("\x9ds", "t's") |>
@@ -306,7 +350,14 @@ patch_encoding <- function(data) {
     gsub_bytes(" ~\xa7 ", " ") |>
     gsub_bytes(" \xa7 ", " ") |>
     gsub_bytes(" \xb6 ", " ") |>
-    gsub_bytes(" \xc3 ", " ")
+    gsub_bytes(" \xc3 ", " ") |>
+    # the degree symbol showing up in percentage sign
+    gsub_bytes("\xba/\xba", "%") |>
+    gsub_bytes("%/\xba", "%") |>
+    gsub_bytes("%\xba", "%") |>
+    gsub_bytes("\xba%", "%") |>
+    gsub_bytes("\xba/%", "%") |>
+    gsub_bytes("\xba", "º")
 
   data[enc$index, "line"] <- lines_repaired
   data
@@ -452,7 +503,11 @@ patch_false_spaces <- function(data) {
       line = line |>
         str_replace_all_verbose(pat_to, " to ") |>
         str_replace_all_verbose(pat_that, " that ") |>
-        str_replace_all_verbose(pat_thats, " that's ")
+        str_replace_all_verbose(pat_thats, " that's ") |>
+        str_replace_all_verbose(regex_ic(" fo ryou"), " for you") |>
+        str_replace_all_verbose(regex_ic(" proud oyou"), " proud of you") |>
+        str_replace_all_verbose(regex_ic("\\bNYou"), " You")
+
     )
 }
 
@@ -624,6 +679,8 @@ patch_easy_ocr_errors <- function(data) {
     bind_rows(data_all) |>
     arrange(index)
 
+  data$line <- data$line |>
+    str_replace(regex_ic("to/d\\b"), "told")
   data
 }
 

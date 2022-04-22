@@ -44,7 +44,7 @@ try <- try |>
   str_subset("\\d", negate = TRUE)
   # str_subset("'s$", negate = TRUE) |>
   # str_subset("'ll$", negate = TRUE) |>
-  # str_subset("^o'", negate = TRUE)
+# str_subset("^o'", negate = TRUE)
 
 
 
@@ -71,5 +71,34 @@ data %>%
 writeLines()
 
 
-data$fix
+
+
+targets::tar_load(data_counts_patched)
+data_pooled <- data_counts_patched
+data_pooled$word |>
+  sample(size = 20)
+# data_pooled$word |> str_subset("to/d")
+
+explore_splits(data_pooled$word, "with") |>
+  pull() |>
+  writeLines()
+
+data_patched_lines <- data_raw_corpus_patched
+data_patched_lines$line |> str_subset(regex_ic("\\bbiddles\\b"))
+
+
+inc <- data_counts_patched$word |> str_subset(regex_ic("ln(p|r|s|v|w|y|z)"))
+
+paste0(inc, ",", str_replace_all(inc, "ln(p|r|s|v|w|y|z)", "in\\1")) |> sort() |>
+  writeLines()
+
+
+data_pooled |>
+  mutate(
+    word2 = word |> str_replace_all("l", "i"),
+    patch = paste0(word, ",", word2)
+  ) |>
+  filter(hunspell::hunspell_check(word2), word != word2) |>
+  pull(patch) |>
+  writeLines()
 

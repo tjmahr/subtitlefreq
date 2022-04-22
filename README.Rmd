@@ -465,3 +465,18 @@ data_raw$line |>
   ) |> 
   substr(1, 30)
 ```
+
+
+```{r, echo = FALSE}
+# ther eyou
+# mayb eyou
+# Than kyou
+# YourX-rays
+# offt he 
+# ofJ ohn 
+# Splash ofJ &B? J ust
+ # ofk nife 
+# god ofd arkness
+# de fi init
+# insec't
+```
