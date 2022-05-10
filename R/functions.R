@@ -8,7 +8,6 @@ regex_ic <- function(...) regex(..., ignore_case = TRUE)
 gsub_bytes <- function(x, pattern, replacement) {
   gsub(pattern = pattern, replacement = replacement, x = x, useBytes = TRUE)
 }
-c("a.b", "ab") |> str_subset(fixed(".", ignore_case = TRUE))
 
 grep_bytes <- function(x, pattern, invert = FALSE) {
   grep(
