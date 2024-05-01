@@ -3,6 +3,8 @@ library(tarchetypes)
 library(future)
 library(furrr)
 library(tidyverse)
+library(fst)
+library(usethis)
 plan(multisession)
 
 source("R/functions.R")

@@ -21,9 +21,9 @@ neighborhood frequency measures.
 As a matter of caution, I won’t provide the original subtitle corpus.
 But you can download it the same way that I did.
 
--   Go to the following URL: <http://www.lexique.org/?page_id=241> and
-    download the corpus.
--   Move `Subtlex US.rar` into `data` folder.
+- Go to the following URL: <http://www.lexique.org/?page_id=241> and
+  download the corpus.
+- Move `Subtlex US.rar` into `data` folder.
 
 We can test our download by reading the embedded readme file from it.
 
@@ -67,9 +67,10 @@ data_subtlexus
 #>  8 aal              1       1       1     1     0.0196  0.301  0.0119  0.301
 #>  9 aardvark        21      12      14     8     0.412   1.34   0.143   1.11 
 #> 10 aargh           33      26       2     1     0.647   1.53   0.310   1.43 
-#> # … with 74,276 more rows, and 6 more variables: Dom_PoS_SUBTLEX <chr>,
-#> #   Freq_dom_PoS_SUBTLEX <dbl>, Percentage_dom_PoS <dbl>,
-#> #   All_PoS_SUBTLEX <chr>, All_freqs_SUBTLEX <chr>, `Zipf-value` <dbl>
+#> # ℹ 74,276 more rows
+#> # ℹ 6 more variables: Dom_PoS_SUBTLEX <chr>, Freq_dom_PoS_SUBTLEX <dbl>,
+#> #   Percentage_dom_PoS <dbl>, All_PoS_SUBTLEX <chr>, All_freqs_SUBTLEX <chr>,
+#> #   `Zipf-value` <dbl>
 ```
 
 Data processing here works in three stages. First, there is a raw tibble
@@ -94,7 +95,7 @@ data_raw
 #>  8     8     1 "I'm gonna call it Serendipity.  What does that mean? I don't kn…
 #>  9     9     1 "What on earth is wrong with you, besides the obvious lack of fa…
 #> 10    10     1 "Where would you go ? "                                          
-#> # … with 6,043,178 more rows
+#> # ℹ 6,043,178 more rows
 ```
 
 These lines are patched (to remove some garbage I discovered where
@@ -107,30 +108,30 @@ frequency counts:
 ``` r
 data_pooled <- targets::tar_read(data_counts_pooled)
 data_pooled |> print(n = 20)
-#> # A tibble: 197,222 × 2
+#> # A tibble: 197,118 × 2
 #>    word        n
 #>    <chr>   <int>
 #>  1 you   1842898
-#>  2 the   1472434
-#>  3 i     1463934
+#>  2 the   1472439
+#>  3 i     1463947
 #>  4 to    1142666
-#>  5 a     1024585
-#>  6 and    670082
+#>  5 a     1024589
+#>  6 and    670085
 #>  7 it     659502
 #>  8 of     579718
 #>  9 that   545121
 #> 10 in     495987
-#> 11 me     466416
-#> 12 is     454119
+#> 11 me     466417
+#> 12 is     454121
 #> 13 what   424831
-#> 14 this   402426
+#> 14 this   402427
 #> 15 on     350957
 #> 16 for    346988
 #> 17 my     340031
-#> 18 i'm    335623
+#> 18 i'm    335624
 #> 19 your   324869
-#> 20 we     318233
-#> # … with 197,202 more rows
+#> 20 we     318234
+#> # ℹ 197,098 more rows
 ```
 
 You might notice that there are around 200,000 words here, instead of
@@ -157,7 +158,7 @@ data_patches
 #>  8 2,000ft    2,000 feet     
 #>  9 20,000ft   20,000 feet    
 #> 10 3,000ft    3,000 feet     
-#> # … with 3,257 more rows
+#> # ℹ 3,257 more rows
 ```
 
 These individual patches are followed by regular-expression-based
@@ -197,20 +198,20 @@ After applying the patches, we obtain the following counts:
 ``` r
 data <- targets::tar_read("data_counts_patched")
 data
-#> # A tibble: 193,638 × 2
+#> # A tibble: 193,535 × 2
 #>    word        n
 #>    <chr>   <int>
 #>  1 you   1843993
-#>  2 the   1472778
-#>  3 i     1463956
+#>  2 the   1472783
+#>  3 i     1463969
 #>  4 to    1142780
-#>  5 a     1024717
-#>  6 and    670124
+#>  5 a     1024721
+#>  6 and    670127
 #>  7 it     659564
 #>  8 of     582164
 #>  9 that   545204
 #> 10 in     496060
-#> # … with 193,628 more rows
+#> # ℹ 193,525 more rows
 ```
 
 We can rationalize our patching activity by looking at how many words
@@ -220,7 +221,7 @@ are affected:
 data_pooled |>
   anti_join(data, by = "word") |> 
   print(n = 20)
-#> # A tibble: 3,801 × 2
+#> # A tibble: 3,800 × 2
 #>    word              n
 #>    <chr>         <int>
 #>  1 i'il           2179
@@ -243,7 +244,7 @@ data_pooled |>
 #> 18 lvy             266
 #> 19 ofthe           252
 #> 20 lreland         238
-#> # … with 3,781 more rows
+#> # ℹ 3,780 more rows
 ```
 
 ## comparisons
@@ -260,9 +261,9 @@ I seem to be missing around 3 million tokens.
 
 ``` r
 sum(data$n)
-#> [1] 47675657
+#> [1] 47675793
 51000000 - sum(data$n)
-#> [1] 3324343
+#> [1] 3324207
 ```
 
 Or perhaps I am missing just 2 million words, based on the published
@@ -272,7 +273,7 @@ frequencies:
 sum(data_subtlexus$FREQcount)
 #> [1] 49719560
 sum(data_subtlexus$FREQcount) - sum(data$n)
-#> [1] 2043903
+#> [1] 2043767
 ```
 
 Our raw text has lots of segmentation errors where multiple words are
@@ -298,7 +299,7 @@ data_pooled |>
 #>  8 waitin'for      11  1269
 #>  9 ain'tight       10  1269
 #> 10 goin'out        10  1269
-#> # … with 810 more rows
+#> # ℹ 810 more rows
 ```
 
 > For instance, there are 18,081 occurrences of the word *play* in
@@ -326,9 +327,9 @@ The published counts fortunately do not have “lng” words.
 data_subtlexus |> 
   filter(str_detect(Word, "lng"))
 #> # A tibble: 0 × 15
-#> # … with 15 variables: Word <chr>, FREQcount <dbl>, CDcount <dbl>,
-#> #   FREQlow <dbl>, Cdlow <dbl>, SUBTLWF <dbl>, Lg10WF <dbl>, SUBTLCD <dbl>,
-#> #   Lg10CD <dbl>, Dom_PoS_SUBTLEX <chr>, Freq_dom_PoS_SUBTLEX <dbl>,
+#> # ℹ 15 variables: Word <chr>, FREQcount <dbl>, CDcount <dbl>, FREQlow <dbl>,
+#> #   Cdlow <dbl>, SUBTLWF <dbl>, Lg10WF <dbl>, SUBTLCD <dbl>, Lg10CD <dbl>,
+#> #   Dom_PoS_SUBTLEX <chr>, Freq_dom_PoS_SUBTLEX <dbl>,
 #> #   Percentage_dom_PoS <dbl>, All_PoS_SUBTLEX <chr>, All_freqs_SUBTLEX <chr>,
 #> #   Zipf-value <dbl>
 ```
@@ -355,7 +356,7 @@ data_pooled |>
 #>  8 l'il       70     4143
 #>  9 she'il     58     4143
 #> 10 s'il       54     4143
-#> # … with 27 more rows
+#> # ℹ 27 more rows
 
 # published
 data_subtlexus |> 
@@ -417,25 +418,25 @@ data |>
 #>    <chr>   <int> <chr>   <int>
 #>  1 you   1843993 you   1851697
 #>  2 ya       7704 you   1851697
-#>  3 is     454125 be    1535659
-#>  4 be     289158 be    1535659
-#>  5 was    284082 be    1535659
-#>  6 are    262932 be    1535659
-#>  7 been    87371 be    1535659
-#>  8 were    83517 be    1535659
-#>  9 am      49878 be    1535659
-#> 10 being   24596 be    1535659
-#> 11 the   1472778 the   1472778
-#> 12 i     1463956 i     1463956
+#>  3 is     454127 be    1535662
+#>  4 be     289158 be    1535662
+#>  5 was    284082 be    1535662
+#>  6 are    262933 be    1535662
+#>  7 been    87371 be    1535662
+#>  8 were    83517 be    1535662
+#>  9 am      49878 be    1535662
+#> 10 being   24596 be    1535662
+#> 11 the   1472783 the   1472783
+#> 12 i     1463969 i     1463969
 #> 13 to    1142780 to    1142780
-#> 14 a     1024717 a     1118441
-#> 15 an      93724 a     1118441
-#> 16 and    670124 and    670124
+#> 14 a     1024721 a     1118445
+#> 15 an      93724 a     1118445
+#> 16 and    670127 and    670127
 #> 17 it     659564 it     659564
 #> 18 that   545204 that   583133
 #> 19 those   37929 that   583133
 #> 20 of     582164 of     582164
-#> # … with 980 more rows
+#> # ℹ 980 more rows
 ```
 
 Hmm, I wish I could skip irregular forms from being lemmatized. I am
@@ -458,8 +459,8 @@ c <- targets::tar_read(data_counts_patched) |>
 abc <- a |> 
   full_join(b) |> 
   full_join(c)
-#> Joining, by = "word"
-#> Joining, by = "word"
+#> Joining with `by = join_by(word)`
+#> Joining with `by = join_by(word)`
 ```
 
 Line-patching tries to correct OCR errors and contractions with extra
@@ -474,20 +475,20 @@ abc |>
     n_b_tokens = sum(n_b, na.rm = TRUE),
     n_c_tokens = sum(n_c, na.rm = TRUE)
   )
-#> # A tibble: 2,839 × 6
+#> # A tibble: 2,827 × 6
 #>    word       n_a   n_b   n_c n_b_tokens n_c_tokens
 #>    <chr>    <int> <int> <int>      <int>      <int>
-#>  1 hiv         NA   227   227       9408       9931
-#>  2 rené        NA   142   142       9408       9931
-#>  3 cliché      NA   132   132       9408       9931
-#>  4 º           NA   112   112       9408       9931
-#>  5 señora      NA   105   105       9408       9931
-#>  6 führer      NA    99    99       9408       9931
-#>  7 pelé        NA    97    97       9408       9931
-#>  8 fräulein    NA    90    90       9408       9931
-#>  9 señorita    NA    90    90       9408       9931
-#> 10 temüjin     NA    68    68       9408       9931
-#> # … with 2,829 more rows
+#>  1 hiv         NA   227   227       9394       9917
+#>  2 rené        NA   142   142       9394       9917
+#>  3 cliché      NA   132   132       9394       9917
+#>  4 º           NA   112   112       9394       9917
+#>  5 señora      NA   105   105       9394       9917
+#>  6 führer      NA    99    99       9394       9917
+#>  7 pelé        NA    97    97       9394       9917
+#>  8 fräulein    NA    90    90       9394       9917
+#>  9 señorita    NA    90    90       9394       9917
+#> 10 temüjin     NA    68    68       9394       9917
+#> # ℹ 2,817 more rows
 ```
 
 Words that were lost in the line patching. Some subtitles would have
@@ -500,20 +501,20 @@ abc |>
   mutate(
     n_a_tokens = sum(n_a, na.rm = TRUE)
   )
-#> # A tibble: 5,069 × 5
+#> # A tibble: 5,053 × 5
 #>    word            n_a   n_b   n_c n_a_tokens
 #>    <chr>         <int> <int> <int>      <int>
-#>  1 teli           1002    NA    NA      29930
-#>  2 realiy          859    NA    NA      29930
-#>  3 www.forom.com   722    NA    NA      29930
-#>  4 rlggs           682    NA    NA      29930
-#>  5 lsn't           660    NA    NA      29930
-#>  6 stili           445    NA    NA      29930
-#>  7 helio           442    NA    NA      29930
-#>  8 sdl             360    NA    NA      29930
-#>  9 alds            302    NA    NA      29930
-#> 10 slpowlcz        199    NA    NA      29930
-#> # … with 5,059 more rows
+#>  1 teli           1002    NA    NA      29927
+#>  2 realiy          859    NA    NA      29927
+#>  3 www.forom.com   722    NA    NA      29927
+#>  4 rlggs           682    NA    NA      29927
+#>  5 lsn't           660    NA    NA      29927
+#>  6 stili           445    NA    NA      29927
+#>  7 helio           442    NA    NA      29927
+#>  8 sdl             360    NA    NA      29927
+#>  9 alds            302    NA    NA      29927
+#> 10 slpowlcz        199    NA    NA      29927
+#> # ℹ 5,043 more rows
 ```
 
 Words that increased during line-patching. “Kitt”, by the way, is the
@@ -534,25 +535,25 @@ diffs <- abc |>
 diffs |> 
   select(-n_c, -starts_with("c_vs")) |> 
   arrange(desc(b_vs_a))
-#> # A tibble: 202,503 × 5
+#> # A tibble: 202,383 × 5
 #>    word      n_a    n_b b_vs_a b_vs_a_prop
 #>    <chr>   <int>  <int>  <int>       <dbl>
-#>  1 i'm    327468 335623   8155     0.0249 
-#>  2 it's   276005 283794   7789     0.0282 
+#>  1 i'm    327469 335624   8155     0.0249 
+#>  2 it's   276006 283795   7789     0.0282 
 #>  3 don't  309965 316493   6528     0.0211 
 #>  4 that's 159049 163181   4132     0.0260 
 #>  5 you're 184816 188698   3882     0.0210 
 #>  6 in     492327 495987   3660     0.00743
-#>  7 all    257742 261032   3290     0.0128 
+#>  7 all    257743 261033   3290     0.0128 
 #>  8 i'll   111235 113741   2506     0.0225 
 #>  9 kitt       11   2079   2068   172.     
 #> 10 can't   90478  92488   2010     0.0222 
-#> # … with 202,493 more rows
+#> # ℹ 202,373 more rows
 
 diffs |> 
   select(-n_c, -starts_with("c_vs")) |> 
   arrange(desc(b_vs_a_prop)) 
-#> # A tibble: 202,503 × 5
+#> # A tibble: 202,383 × 5
 #>    word     n_a   n_b b_vs_a b_vs_a_prop
 #>    <chr>  <int> <int>  <int>       <dbl>
 #>  1 hiv        0   227    227        227 
@@ -565,7 +566,7 @@ diffs |>
 #>  8 señora     0   105    105        105 
 #>  9 führer     0    99     99         99 
 #> 10 pelé       0    97     97         97 
-#> # … with 202,493 more rows
+#> # ℹ 202,373 more rows
 ```
 
 Words that decreased during line-patching.
@@ -574,25 +575,25 @@ Words that decreased during line-patching.
 diffs |> 
   select(-n_c, -starts_with("c_vs")) |> 
   arrange(b_vs_a)
-#> # A tibble: 202,503 × 5
+#> # A tibble: 202,383 × 5
 #>    word      n_a     n_b b_vs_a b_vs_a_prop
 #>    <chr>   <int>   <int>  <int>       <dbl>
-#>  1 s       30138    4345 -25793    -0.856  
+#>  1 s       30140    4347 -25793    -0.856  
 #>  2 t       19441    3609 -15832    -0.814  
-#>  3 i     1478384 1463934 -14450    -0.00977
-#>  4 m       10901    2619  -8282    -0.760  
+#>  3 i     1478397 1463947 -14450    -0.00977
+#>  4 m       10902    2620  -8282    -0.760  
 #>  5 it     666532  659502  -7030    -0.0105 
 #>  6 don      8418    1866  -6552    -0.778  
 #>  7 re       8044    2064  -5980    -0.743  
 #>  8 you   1848677 1842898  -5779    -0.00313
 #>  9 ll       5413     721  -4692    -0.867  
 #> 10 ln       3696      14  -3682    -0.996  
-#> # … with 202,493 more rows
+#> # ℹ 202,373 more rows
 
 diffs |> 
   select(-n_c, -starts_with("c_vs")) |> 
   arrange(b_vs_a_prop) 
-#> # A tibble: 202,503 × 5
+#> # A tibble: 202,383 × 5
 #>    word            n_a   n_b b_vs_a b_vs_a_prop
 #>    <chr>         <int> <int>  <int>       <dbl>
 #>  1 teli           1002     0  -1002      -0.999
@@ -605,7 +606,7 @@ diffs |>
 #>  8 sdl             360     0   -360      -0.997
 #>  9 weli           2015     5  -2010      -0.997
 #> 10 alds            302     0   -302      -0.997
-#> # … with 202,493 more rows
+#> # ℹ 202,373 more rows
 ```
 
 Finally, these are words that changed with word-level patching.
@@ -614,7 +615,7 @@ Finally, these are words that changed with word-level patching.
 diffs |> 
   select(-n_a, -starts_with("b_vs")) |> 
   arrange(desc(c_vs_b))
-#> # A tibble: 202,503 × 5
+#> # A tibble: 202,383 × 5
 #>    word          n_b     n_c c_vs_b c_vs_b_prop
 #>    <chr>       <int>   <int>  <int>       <dbl>
 #>  1 of         579718  582164   2446    0.00422 
@@ -623,16 +624,16 @@ diffs |>
 #>  4 indian        178    1282   1104    6.17    
 #>  5 you       1842898 1843993   1095    0.000594
 #>  6 italian       237    1255   1018    4.28    
-#>  7 just       241452  242182    730    0.00302 
+#>  7 just       241453  242183    730    0.00302 
 #>  8 like       202274  202978    704    0.00348 
 #>  9 indians       145     794    649    4.45    
 #> 10 inspector    1089    1728    639    0.586   
-#> # … with 202,493 more rows
+#> # ℹ 202,373 more rows
 
 diffs |> 
   select(-n_a, -starts_with("b_vs")) |> 
   arrange(desc(c_vs_b_prop)) 
-#> # A tibble: 202,503 × 5
+#> # A tibble: 202,383 × 5
 #>    word        n_b   n_c c_vs_b c_vs_b_prop
 #>    <chr>     <int> <int>  <int>       <dbl>
 #>  1 mcintyre      0   120    120       120  
@@ -645,7 +646,7 @@ diffs |>
 #>  8 innsbruck     0    14     14        14  
 #>  9 mcintire      0    13     13        13  
 #> 10 indochina     1    26     25        12.5
-#> # … with 202,493 more rows
+#> # ℹ 202,373 more rows
 ```
 
 Words that decreased from word-patching.
@@ -654,7 +655,7 @@ Words that decreased from word-patching.
 diffs |> 
   select(-n_a, -starts_with("b_vs")) |> 
   arrange(c_vs_b)
-#> # A tibble: 202,503 × 5
+#> # A tibble: 202,383 × 5
 #>    word        n_b   n_c c_vs_b c_vs_b_prop
 #>    <chr>     <int> <int>  <int>       <dbl>
 #>  1 i'il       2179     0  -2179      -1.00 
@@ -667,7 +668,7 @@ diffs |>
 #>  8 we'il       583     0   -583      -0.998
 #>  9 ltaly       558     0   -558      -0.998
 #> 10 you'il      525     0   -525      -0.998
-#> # … with 202,493 more rows
+#> # ℹ 202,373 more rows
 ```
 
 ### contraction counts
@@ -800,9 +801,8 @@ figured out the `"I"` to `"l"` OCR problem in all-caps words.
 ``` r
 data_pooled$word |> 
   sample(size = 10)
-#>  [1] "arabian"         "pil"             "boehn"           "examined"       
-#>  [5] "meghanlomania's" "retro's"         "ciosed"          "cheney"         
-#>  [9] "pentagon'll"     "overpowered"
+#>  [1] "monitering"   "fixum"        "cronice"      "bluff's"      "senji"       
+#>  [6] "ikiss"        "caes"         "megistias"    "systemically" "preachy"
 ```
 
 To feel better about things, you could weight by frequency:
@@ -810,8 +810,8 @@ To feel better about things, you could weight by frequency:
 ``` r
 data_pooled$word |> 
   sample(size = 10, prob = data_pooled$n)
-#>  [1] "acting"    "wait"      "is"        "could"     "us"        "buenas"   
-#>  [7] "offspring" "to"        "girl's"    "excuse"
+#>  [1] "are"    "all"    "yeah"   "gonna"  "mother" "dear"   "you"    "him"   
+#>  [9] "girl"   "it"
 ```
 
 ## open questions (so far)
@@ -825,10 +825,9 @@ subwords so that, e.g., “1993” is “nineteen”, “ninety”, and “three
 
 Stray observations:
 
--   There are lots of URLs/usernames in the corpus because the subtitles
-    can be signed or sourced.
+- There are lots of URLs/usernames in the corpus because the subtitles
+  can be signed or sourced.
 
--   If a TV show has a theme song, then you can find many repeated
-    lines.
+- If a TV show has a theme song, then you can find many repeated lines.
 
--   other OCR errors to consider: i/l to 1
+- other OCR errors to consider: i/l to 1
