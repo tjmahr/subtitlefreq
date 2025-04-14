@@ -1,3 +1,4 @@
+# interactive script for exploring/working on encoding
 
 library(tidyverse)
 

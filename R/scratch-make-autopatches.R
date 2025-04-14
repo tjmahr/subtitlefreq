@@ -1,3 +1,5 @@
+# interactive script for exploring results and making patches
+
 library(tidyverse)
 targets::tar_load(data_counts_patched)
 targets::tar_load(data_raw_corpus_patched)
@@ -6,7 +8,6 @@ data_counts_patched$word |>
 
 urls <- data_raw_corpus_patched$line |>
   str_subset(fixed("Synchro: ", ignore_case = TRUE))
-
 
 zap_lines <- function(data, pattern) {
   fixed_ic <- function(...) fixed(..., ignore_case = TRUE)
@@ -30,11 +31,13 @@ zap_lines_re <- function(data, pattern) {
 data_raw_corpus_patched <- data_raw_corpus_patched |>
   zap_lines("English Subtitle: ")
 
+
 data_raw_corpus_patched$line |>
   str_subset(regex_ic("\\w[.]com"))
 data_raw_corpus_patched$line |>
-  str_subset(fixed_ic("subtitles")) |> table() |> sort()
-
+  str_subset(fixed_ic("subtitles")) |>
+  table() |>
+  sort()
 
 try <- data_counts_patched$word %>%
   str_subset(regex("\\w{2,}[,.]\\w{2,}")) %>%
@@ -45,9 +48,6 @@ try <- try |>
   # str_subset("'s$", negate = TRUE) |>
   # str_subset("'ll$", negate = TRUE) |>
 # str_subset("^o'", negate = TRUE)
-
-
-
 data <- tibble(
   match = try,
   guess = try %>%
@@ -68,10 +68,6 @@ data %>%
   unique() %>%
   writeClipboard()
 
-writeLines()
-
-
-
 
 targets::tar_load(data_counts_patched)
 data_pooled <- data_counts_patched
@@ -79,13 +75,13 @@ data_pooled$word |>
   sample(size = 20)
 # data_pooled$word |> str_subset("to/d")
 
-explore_splits(data_pooled$word, "with") |>
+data_pooled$word |>
+  explore_splits("with") |>
   pull() |>
   writeLines()
 
 data_patched_lines <- data_raw_corpus_patched
 data_patched_lines$line |> str_subset(regex_ic("\\bbiddles\\b"))
-
 
 inc <- data_counts_patched$word |> str_subset(regex_ic("ln(p|r|s|v|w|y|z)"))
 

@@ -92,7 +92,6 @@ You might notice that there are around 200,000 words here, instead of
 the 60,000-70,000 words you might see elsewhere. This is probably because we 
 did not lump any inflections together or anything.
 
-
 If I see ever any typos in the counts, I try to store a correction in the csv
 file `data/patches.csv`. This is probably a futile, never-ending endeavor, but 
 hey, at least anyone can add to it.
@@ -119,7 +118,7 @@ data
 ```
 
 We can rationalize our patching activity by looking at how many words are 
-affected:
+affected. These words have been removed by the patching:
 
 ```{r}
 data_pooled |>
@@ -164,6 +163,7 @@ data_pooled |>
   mutate(sum = sum(n))
 ```
 
+Let's check agianst a specific set of counts by the authors.
 
 > For instance, there are 18,081 occurrences of the word *play* in
 > SUBTLEXUS, 1,521 of the word *plays*, 2,870 of the word *played*,
@@ -260,7 +260,7 @@ abc <- a |>
 ```
 
 Line-patching tries to correct OCR errors and contractions with extra
-spacing ("isn 't "). These are words that would not exist if were not
+spacing ("isn 't "). These are words that would not exist if not
 for the line patches. For example, *HIV* appears because OCR reads the
 word as `"HlV"`.
 
@@ -273,7 +273,7 @@ abc |>
   )
 ```
 
-Words that were lost in the line patching. Some subtitles would have
+Some words were lost in the line patching. Some subtitles would have
 annotations like `"(SlNGlNG)"` or `"(lN ENGLlSH)"` so the OCR correction
 repaired these.
 
@@ -392,7 +392,7 @@ contractions I have missed. We would get around 300 contractions with some
 patching.
 
 ```{r}
- data %>%
+data %>%
   filter(
     word %in% paste0(contraction_stems),
   ) |> 
@@ -402,15 +402,24 @@ patching.
   mutate(total = sum(n))
 ```
 
-A quick check of what these remaining errors look like:
+A quick check of what these remaining errors look like. I seem to have missed
+contractions that use an asterisk.
 
 ```{r}
 data_patched_lines <- targets::tar_read("data_raw_corpus_patched")
-didn_lines <- data_patched_lines |> 
-  filter(str_detect(line, "didn[^'t]"))
+
 
 data_patched_lines |> 
-  filter(str_detect(line, "\\w\\\"\\w")) |> tail()
+  filter(str_detect(line, "n[*]t"))
+
+didn_lines <- data_patched_lines |> 
+  filter(str_detect(line, "didn[^'t]"))
+didn_lines
+
+# Quotations marks in the middle of words
+data_patched_lines |> 
+  filter(str_detect(line, "\\w\\\"\\w")) |> 
+  tail()
 ```
 
 
