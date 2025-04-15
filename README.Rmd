@@ -30,7 +30,7 @@ to rebuild some frequency counts from scratch.
 estimate how frequent "don't" is so I could compute some neighborhood frequency
 measures.
 
-## obtaining the raw SUBTLEX-US data
+## Obtaining the raw SUBTLEX-US data
 
 As a matter of caution, I won't provide the original subtitle corpus. But you
 can download it the same way that I did.
@@ -52,11 +52,11 @@ writeLines(readLines(readme))
 
 That last line is why I don't redistribute the corpus.
 
-## then run targets
+## The targets package builds the corpus
 
-Assuming the data are downloaded and the appropriate packages are
-installed, then running `targets::tar_make()` should count the words in
-the corpus. targets also [downloads](https://osf.io/djpqz/) and prepares the published version of
+Assuming the data are downloaded and the appropriate packages are installed,
+then running `targets::tar_make()` should count the words in the corpus. targets
+also [downloads](https://osf.io/djpqz/) and prepares the published version of
 the SUBTLEX-US frequency counts.
 
 ```{r}
@@ -65,11 +65,30 @@ data_subtlexus
 ```
 
 
+## Data processing 
 
+Data processing here works in four stages.
 
-Data processing here works in three stages. First, there is a raw tibble of
-lines with row per subtitle line. The `batch` column is used for splitting the
-corpus into batches so that words can be counted in parallel.
+1. Pre-R line repairs. The script `data/patch-line.sh` fixes any lines that 
+   interfere with loading the text corpus. The corpus is read in to
+   the target `data_raw_corpus`.
+
+2. Line repairs. These apply a series of text repairs to the corpus lines of 
+   text. Any error that effects the spacing of words---for example, 
+   contractions being split up (`I' ll go`)---is repaired here. Other OCR errors 
+   are repaired here. The result is stored in the target `data_raw_corpus_patched`.
+
+3. Initial word counts. The text is separated into words and those words are 
+   counted. The result is stored in the target `data_pooled`.
+
+4. Word patching and recounting. Systematic word-level errors are repaired. 
+   For example, the OCR error `lrish` for *Irish* is replaced with `irish` and 
+   the counts are updated.
+   
+
+In steps (1) and (2), the corpus is a tibble of lines with row per subtitle
+line. The `batch` column is used for splitting the corpus into batches so that
+words can be counted in parallel.
 
 ```{r}
 library(tidyverse)
@@ -77,24 +96,23 @@ data_raw <- targets::tar_read(data_raw_corpus)
 data_raw
 ```
 
-These lines are patched (to remove some garbage I discovered where markup was
-included in the dialogue), and then the words are in batch are counted.
-
-The counts from each batch are pooled together to give the following frequency
-counts:
+In step (3), the counts from each batch are pooled together to give the 
+following frequency counts:
 
 ```{r}
 data_pooled <- targets::tar_read(data_counts_pooled)
-data_pooled |> print(n = 20)
+data_pooled |> 
+  print(n = 20)
 ```
 
-You might notice that there are around 200,000 words here, instead of
-the 60,000-70,000 words you might see elsewhere. This is probably because we 
-did not lump any inflections together or anything.
+Notice that there are around 200,000 words here, instead of
+the 60,000-70,000 words we might see elsewhere. This is probably because we 
+did not lump any inflections together or performed similar reductions.
 
-If I see ever any typos in the counts, I try to store a correction in the csv
-file `data/patches.csv`. This is probably a futile, never-ending endeavor, but 
-hey, at least anyone can add to it.
+In step (4), I repair errors in this word list.  Basically, if I see ever any 
+typos in the counts, I try to store a correction in the csv file 
+`data/patches.csv`. This is probably a futile, never-ending endeavor, but 
+it's lightweight and easy to update. 
 
 ```{r}
 data_patches <- targets::tar_read("data_patches")
@@ -110,7 +128,12 @@ data_patches_regex <- targets::tar_read("data_patches_regex")
 data_patches_regex
 ```
 
-After applying the patches, we obtain the following counts:
+Many of the direct patches could simplified into regular-expression-based ones,
+and some of the very narrow regular-expression ones could be made into direct
+patches. It doesn't really matter as long as there are no false positive
+repairs.
+
+After applying the patches in step (4), we obtain the following counts:
 
 ```{r}
 data <- targets::tar_read("data_counts_patched")
@@ -151,19 +174,12 @@ sum(data_subtlexus$FREQcount)
 sum(data_subtlexus$FREQcount) - sum(data$n)
 ```
 
-Our raw text has lots of segmentation errors where multiple words are
-combined together. For example, here are types with "in'" followed by 2
-characters. If I split "tryin'to" into "tryin' to", I get 36 new words.
-Would systematically fixing lots of segmentation mistakes
-rediscover 2,000,000 missing words?
 
-```{r}
-data_pooled |> 
-  filter(str_detect(word, "in'..+$")) |> 
-  mutate(sum = sum(n))
-```
+When we repair many segmentation errors (where multiple words are combined
+together), we recover additional words, so we might be underestimating how many
+word tokens we are missing from the corpus.
 
-Let's check agianst a specific set of counts by the authors.
+Let's check our frequencies against a specific set of counts by the authors.
 
 > For instance, there are 18,081 occurrences of the word *play* in
 > SUBTLEXUS, 1,521 of the word *plays*, 2,870 of the word *played*,
@@ -186,7 +202,7 @@ data_subtlexus |>
 
 But the combination of treating contractions as separate words and the
 l-\>i conversion means that there are a few thousand spurious tokens of
-"il":
+"il" in SUBTLEXUS:
 
 ```{r}
 # raw, unpatched
@@ -218,11 +234,11 @@ data_subtlexus |>
   select(1:2)
 ```
 
+## miscellany
 
+### let's try something
 
-## let's try something
-
-I saw the textstem package as a solution for lemmatizing words. 
+I saw the textstem package as a solution for lemmatizing words. Let's try that.
 
 ```{r}
 data |> 
@@ -240,7 +256,7 @@ Hmm, I wish I could skip irregular forms from being lemmatized. I am
 also not a fan of "being" is reduced down to "be".
 
 
-## some comparisons for my own interest
+### some comparisons for my own interest
 
 There are two layers of patching. One edits the lines in the corpus and
 the other edits the words and recounts the words. I want to compare 
@@ -259,7 +275,7 @@ abc <- a |>
   full_join(c)
 ```
 
-Line-patching tries to correct OCR errors and contractions with extra
+Line-repair tries to correct OCR errors and contractions with extra
 spacing ("isn 't "). These are words that would not exist if not
 for the line patches. For example, *HIV* appears because OCR reads the
 word as `"HlV"`.
@@ -285,8 +301,8 @@ abc |>
   )
 ```
 
-Words that increased during line-patching. "Kitt", by the way, is the
-car from *Knight Rider*.
+These are words that increased during line-repairing. ("Kitt", by the way, is
+the car from *Knight Rider*.)
 
 ```{r}
 diffs <- abc |> 
@@ -300,10 +316,12 @@ diffs <- abc |>
     c_vs_b_prop = c_vs_b / (n_b + 1),
   ) 
 
+# raw increase
 diffs |> 
   select(-n_c, -starts_with("c_vs")) |> 
   arrange(desc(b_vs_a))
 
+# proportion increase
 diffs |> 
   select(-n_c, -starts_with("c_vs")) |> 
   arrange(desc(b_vs_a_prop)) 
@@ -427,7 +445,7 @@ data_patched_lines |>
 
 
 
-## how to spot errors
+### how to spot errors
 
 My "process" for screening the corpus is to randomly sample words and
 see what sticks out. When I noticed `"cla"` in one of these samples, I
@@ -435,21 +453,21 @@ figured out the `"I"` to `"l"` OCR problem in all-caps words.
 
 
 ```{r}
-data_pooled$word |> 
+data$word |> 
   sample(size = 10)
 ```
 
 To feel better about things, you could weight by frequency:
 
 ```{r}
-data_pooled$word |> 
-  sample(size = 10, prob = data_pooled$n)
+data$word |> 
+  sample(size = 10, prob = data$n)
 ```
 
 
 
 
-## open questions (so far)
+### open questions (so far)
 
 I'm not sure what's going on with the encoding and whether that matters. If you
 find all lines with the string "Zellweger", you will find some `"Ren\xe9e

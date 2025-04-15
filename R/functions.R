@@ -460,11 +460,11 @@ patch_text_contractions <- function(data) {
     str_replace_all_verbose(fixed_ic("lsn't"), "isn't")
 
   pat_contr <- regex_ic(
-    "(ain|doesn|didn|wouldn|wasn|hadn|shouldn|isn|aren|haven|don|won|can)\\W"
+    "(ain|doesn|didn|wouldn|wasn|hadn|shouldn|couldn|isn|aren|haven|don|won|can)\\W"
   )
 
-  pat_nt <- regex(
-    "(^|\\W)(ain|doesn|didn|wouldn|wasn|hadn|shouldn|isn|aren|haven|dont|won|can)( t | t$ | t\\W)"
+  pat_nt <- regex_ic(
+    "(^|\\W)(ain|doesn|didn|wouldn|wasn|hadn|shouldn|couldn|isn|aren|haven|dont|won|can)( t | t$ | t\\W)"
   )
 
   data_has_possible_contraction <- data |>
@@ -477,7 +477,6 @@ patch_text_contractions <- function(data) {
     mutate(
       line = line |>
         str_replace_all_verbose(fixed("Can T ell "), "Can Tell ") |>
-        str_replace_all_verbose(fixed("t ake off"), "take off") |>
         str_replace_all_verbose(pat_nt, " \\1't ")
     )
 
@@ -504,6 +503,14 @@ patch_false_spaces <- function(data) {
         str_replace_all_verbose(pat_that, " that ") |>
         str_replace_all_verbose(pat_thats, " that's ") |>
         str_replace_all_verbose(regex_ic(" fo ryou"), " for you") |>
+        str_replace_all_verbose(regex_ic(" e xcept"), " except") |>
+        str_replace_all_verbose(regex_ic(" tak emy"), " take my") |>
+        str_replace_all_verbose(regex_ic(" tak it off"), " take it off") |>
+        str_replace_all_verbose(
+          regex_ic("(\\W|^)(mak|lik|tak)\\W(e|ed|es|en|st)\\W"),
+          " \\2\\3 "
+        ) |>
+        str_replace_all_verbose(regex_ic(" b illionaire"), " billionaire") |>
         str_replace_all_verbose(regex_ic(" proud oyou"), " proud of you") |>
         str_replace_all_verbose(regex_ic("\\bNYou"), " You")
 
